@@ -19,10 +19,10 @@ const exo2 = Exo_2({
 const _geistMono = Geist_Mono({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "StoryWeave - AI-Powered Personalized Stories",
+  title: "AndThen - AI-Powered Personalized Stories",
   description:
     "Discover stories tailored to your personality. Take a personality test and step into narratives that adapt to your choices.",
-  generator: "v0.app",
+  generator: "sagar Jain",
 }
 
 export default function RootLayout({

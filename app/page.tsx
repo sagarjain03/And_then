@@ -4,12 +4,12 @@ import { motion, useScroll, useTransform } from "framer-motion"
 import { NeonButton } from "@/components/ui/neon-button"
 import { NeonCard } from "@/components/ui/neon-card"
 import { AnimatedGrid } from "@/components/ui/animated-grid"
-import { BookOpen, Sparkles, Users, Zap, ChevronRight } from "lucide-react"
+import {  Sparkles, Users, Zap, ChevronRight } from "lucide-react"
 
 export default function LandingPage() {
   const { scrollY } = useScroll()
   const heroY = useTransform(scrollY, [0, 500], [0, 150])
-  const heroOpacity = useTransform(scrollY, [0, 300], [1, 0])
+  // const heroOpacity = useTransform(scrollY, [0, 300], [1, 0])
 
   return (
     <div className="min-h-screen bg-background text-foreground relative overflow-hidden">
@@ -28,8 +28,8 @@ export default function LandingPage() {
         className="fixed top-8 left-1/2 -translate-x-1/2 z-50 flex items-center gap-6 px-8 py-4 bg-card/20 backdrop-blur-2xl border border-primary/30 rounded-full glow-violet"
       >
         <motion.div className="flex items-center gap-2" whileHover={{ scale: 1.05 }}>
-          <BookOpen className="w-5 h-5 text-primary" />
-          <span className="text-lg font-display font-bold text-glow-violet">STORYWEAVE</span>
+         
+          <span className="text-lg font-display font-bold text-glow-violet">AND-THEN?</span>
         </motion.div>
         <div className="w-px h-6 bg-primary/30" />
         <Link href="/auth/login">
@@ -49,10 +49,10 @@ export default function LandingPage() {
 
       {/* Hero Section */}
       <section className="pt-32 pb-20 px-4 sm:px-6 lg:px-8 relative">
-        <motion.div style={{ y: heroY, opacity: heroOpacity }} className="max-w-5xl mx-auto text-center relative z-10">
+        <motion.div style={{ y: heroY }} className="max-w-5xl mx-auto text-center relative z-10">
           <motion.div
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
+            initial={{  scale: 0.8 }}
+            animate={{  scale: 1 }}
             transition={{ delay: 0.2 }}
             className="inline-block mb-8 px-6 py-3 bg-card/50 backdrop-blur-xl rounded-full border border-primary/30 glow-violet"
           >
@@ -228,7 +228,7 @@ export default function LandingPage() {
       {/* Footer */}
       <footer className="border-t border-primary/20 py-8 px-4 sm:px-6 lg:px-8 bg-card/30 backdrop-blur-xl relative">
         <div className="max-w-6xl mx-auto text-center text-foreground/50 text-sm font-display uppercase tracking-wider">
-          <p>&copy; 2025 STORYWEAVE. ALL RIGHTS RESERVED.</p>
+          <p>&copy; 2025 AND-THEN? . ALL RIGHTS RESERVED.</p>
         </div>
       </footer>
     </div>

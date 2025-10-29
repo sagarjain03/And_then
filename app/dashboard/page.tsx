@@ -58,7 +58,7 @@ export default function DashboardPage() {
             animate={{ rotate: 360 }}
             transition={{ duration: 2, repeat: Number.POSITIVE_INFINITY, ease: "linear" }}
           >
-            <BookOpen className="w-12 h-12 text-primary mx-auto mb-4" />
+           
           </motion.div>
           <p className="text-muted-foreground">Loading your dashboard...</p>
         </div>
@@ -98,8 +98,8 @@ export default function DashboardPage() {
         className="fixed top-8 left-1/2 -translate-x-1/2 z-50 flex items-center gap-6 px-8 py-4 bg-card/20 backdrop-blur-2xl border border-primary/30 rounded-full glow-violet"
       >
         <div className="flex items-center gap-2">
-          <BookOpen className="w-5 h-5 text-primary" />
-          <span className="text-lg font-display font-bold text-glow-violet">STORYWEAVE</span>
+          {/* <BookOpen className="w-5 h-5 text-primary" /> */}
+          <span className="text-lg font-display font-bold text-glow-violet">AND-THEN?</span>
         </div>
         <div className="w-px h-6 bg-primary/30" />
         <motion.button
@@ -203,7 +203,7 @@ export default function DashboardPage() {
           {savedStories.length === 0 ? (
             <HUDPanel>
               <div className="text-center py-8">
-                <BookOpen className="w-16 h-16 text-foreground/30 mx-auto mb-6" />
+                {/* <BookOpen className="w-16 h-16 text-foreground/30 mx-auto mb-6" /> */}
                 <p className="text-foreground/60 mb-8 font-display uppercase tracking-wide">
                   No stories yet. Create your first story to begin!
                 </p>
