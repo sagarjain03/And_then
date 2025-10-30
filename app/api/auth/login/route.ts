@@ -1,34 +1,72 @@
-import { type NextRequest, NextResponse } from "next/server"
+import User from "@/models/user.model";
+import { NextRequest, NextResponse } from "next/server";
+import bcryptjs from "bcryptjs";
+import jwt from "jsonwebtoken";
+import {DecodedToken} from "@/types/decodedToken"
+import {connectDB} from "@/db/dbconfig"
 
-// TODO: Replace with actual database integration
-const users: Map<string, { email: string; password: string; createdAt: Date }> = new Map()
+// Move connection inside POST handler
+export async function POST(request: NextRequest){
+    try {
+        await connectDB() // Wait for connection
+        
+        const reqBody = await request.json()
+        const {email, password} = reqBody
 
-export async function POST(request: NextRequest) {
-  try {
-    const { email, password } = await request.json()
+        if(!email || !password) {
+            return NextResponse.json(
+                { error: "Email and password are required" }, 
+                { status: 400 }
+            )
+        }
 
-    // Validation
-    if (!email || !password) {
-      return NextResponse.json({ error: "Email and password are required" }, { status: 400 })
+        //check if user exists
+        const user = await User.findOne({email})
+
+        if(!user){
+            return NextResponse.json({error: "Invalid credentials"}, {status: 400})
+        }
+
+        //check if password is correct
+        const isMatch = await bcryptjs.compare(password, user.password)
+
+        if(!isMatch){
+            return NextResponse.json({error: "Invalid credentials"}, {status: 400})
+        }
+
+        const tokendata : DecodedToken= {
+          id:user._id,
+          username:user.username,
+          email:user.email,
+        }
+
+      
+    const token = jwt.sign(tokendata, process.env.JWT_SECRET!, { expiresIn: "1d" });
+
+
+       const response =  NextResponse.json({
+            message: "Login successful",
+            success: true,
+            user
+        })
+
+        response.cookies.set("token", token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'strict',
+            maxAge: 86400, // 1 day in seconds
+            path: '/'
+        })
+
+        return response
+        
+
+
+    } catch (error: any) {
+        console.error("Login error:", error);
+        return NextResponse.json(
+            { error: error.message || "Internal server error" }, 
+            { status: 500 }
+        )
     }
-
-    // Check user credentials (in production, verify hashed password)
-    const user = users.get(email)
-    if (!user || user.password !== password) {
-      return NextResponse.json({ error: "Invalid email or password" }, { status: 401 })
-    }
-
-    // In production, create a JWT token here
-    return NextResponse.json(
-      {
-        message: "Login successful",
-        user: { email },
-        token: `token_${Date.now()}`, // Placeholder token
-      },
-      { status: 200 },
-    )
-  } catch (error) {
-    console.error("Login error:", error)
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 })
-  }
 }

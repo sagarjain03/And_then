@@ -1,31 +1,23 @@
-import { MongoClient, type Db } from "mongodb"
+import mongoose from "mongoose";
 
-let cachedClient: MongoClient | null = null
-let cachedDb: Db | null = null
+export async function connectDB() {
+  try {
+    mongoose.connect(process.env.MONGODB_URI! )
+    const connection = mongoose.connection;
 
-if (!process.env.MONGODB_URI) {
-  throw new Error("Please add your Mongo URI to .env.local")
-}
+    connection.on('connected', () => {
+      console.log('MongoDB connected successfully');
+    })
 
-const uri = process.env.MONGODB_URI
-const options = {}
+    connection.on('error', (error) => {
+      console.log('MongoDB connection error:', error);
+      process.exit(1); 
+    })
 
-export async function connectToDatabase() {
-  if (cachedClient && cachedDb) {
-    return { client: cachedClient, db: cachedDb }
+
+    
+  } catch (error) {
+    console.log("something went wrong in connecting to DB",error);
+    
   }
-
-  const client = new MongoClient(uri, options)
-  await client.connect()
-  const db = client.db("storyweave")
-
-  cachedClient = client
-  cachedDb = db
-
-  return { client, db }
-}
-
-export async function getDatabase() {
-  const { db } = await connectToDatabase()
-  return db
 }
