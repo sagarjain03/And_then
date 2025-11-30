@@ -7,20 +7,25 @@ import { motion } from "framer-motion"
 import { NeonButton } from "@/components/ui/neon-button"
 import { HUDPanel } from "@/components/ui/hud-panel"
 import { AnimatedGrid } from "@/components/ui/animated-grid"
-import { PERSONALITY_TRAITS, type PersonalityResult } from "@/lib/personality-data"
+import { PERSONALITY_TRAITS, type PersonalityResult, type CharacterProfile } from "@/lib/personality-data"
 import { getUserStats } from "@/lib/gamification"
 import { BookOpen, Sparkles, Award, ChevronRight } from "lucide-react"
 
 export default function PersonalityResultsPage() {
   const router = useRouter()
   const [result, setResult] = useState<PersonalityResult | null>(null)
+  const [character, setCharacter] = useState<CharacterProfile | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [stats, setStats] = useState(getUserStats())
 
   useEffect(() => {
     const stored = localStorage.getItem("personalityResult")
     if (stored) {
-      setResult(JSON.parse(stored))
+      const parsed: PersonalityResult = JSON.parse(stored)
+      setResult(parsed)
+      if (parsed.character) {
+        setCharacter(parsed.character)
+      }
     }
     setStats(getUserStats())
     setIsLoading(false)
@@ -197,6 +202,67 @@ export default function PersonalityResultsPage() {
             </motion.div>
           ))}
         </div>
+
+        {/* Gemini Character */}
+        {character && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.9 }}
+            className="mb-16"
+          >
+            <HUDPanel title="YOUR STORY CHARACTER">
+              <div className="space-y-4">
+                <div>
+                  <h3 className="text-2xl font-display font-bold mb-1 text-glow-violet">{character.name}</h3>
+                  <p className="text-sm text-foreground/60 uppercase tracking-wider">
+                    {character.archetype} • {character.role}
+                  </p>
+                </div>
+                <p className="text-foreground/70 leading-relaxed">{character.description}</p>
+                <div className="grid md:grid-cols-2 gap-6 mt-4">
+                  <div>
+                    <h4 className="text-sm font-display uppercase tracking-wider text-foreground/60 mb-2">
+                      Strengths
+                    </h4>
+                    <ul className="list-disc list-inside text-sm text-foreground/70 space-y-1">
+                      {character.strengths.map((s, i) => (
+                        <li key={i}>{s}</li>
+                      ))}
+                    </ul>
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-display uppercase tracking-wider text-foreground/60 mb-2">
+                      Weaknesses
+                    </h4>
+                    <ul className="list-disc list-inside text-sm text-foreground/70 space-y-1">
+                      {character.weaknesses.map((w, i) => (
+                        <li key={i}>{w}</li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+                {character.preferredGenres.length > 0 && (
+                  <div className="mt-4">
+                    <h4 className="text-sm font-display uppercase tracking-wider text-foreground/60 mb-2">
+                      Best Story Genres For You
+                    </h4>
+                    <div className="flex flex-wrap gap-2">
+                      {character.preferredGenres.map((g) => (
+                        <span
+                          key={g}
+                          className="px-3 py-1 rounded-full text-xs font-display uppercase tracking-wider bg-primary/10 border border-primary/30 text-primary"
+                        >
+                          {g}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </HUDPanel>
+          </motion.div>
+        )}
 
         {/* All Traits */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 1 }}>

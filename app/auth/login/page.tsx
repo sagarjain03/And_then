@@ -3,23 +3,49 @@
 import type React from "react"
 
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent } from "@/components/ui/card"
 
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? ""
 
 export default function LoginPage() {
+  const router = useRouter()
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
-    // TODO: Implement login logic
-    setTimeout(() => setIsLoading(false), 1000)
+    setError(null)
+
+    try {
+      const res = await fetch(`${API_BASE_URL || ""}/api/auth/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      })
+
+      const data = await res.json()
+
+      if (!res.ok) {
+        setError(data.error || "Failed to log in. Please try again.")
+        return
+      }
+
+      // On success, the API sets an HTTP-only cookie. Just navigate to the dashboard.
+      router.push("/dashboard")
+    } catch (err) {
+      console.error("Login error", err)
+      setError("Something went wrong. Please try again.")
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (
@@ -58,6 +84,8 @@ export default function LoginPage() {
                 required
               />
             </div>
+
+            {error && <p className="text-sm text-red-500">{error}</p>}
 
             <Button type="submit" className="w-full" disabled={isLoading}>
               {isLoading ? "Logging in..." : "Log in"}

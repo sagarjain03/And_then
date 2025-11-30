@@ -9,7 +9,7 @@ import { AnimatedGrid } from "@/components/ui/animated-grid"
 import { Progress } from "@/components/ui/progress"
 import { XPNotification } from "@/components/ui/xp-notification"
 import { BadgeUnlock } from "@/components/ui/badge-unlock"
-import { PERSONALITY_QUESTIONS, calculatePersonalityScores } from "@/lib/personality-data"
+import { PERSONALITY_QUESTIONS, calculatePersonalityScores, type CharacterProfile } from "@/lib/personality-data"
 import { awardXP, unlockBadge, BADGES } from "@/lib/gamification"
 import { BookOpen, Sparkles } from "lucide-react"
 
@@ -22,6 +22,7 @@ export default function PersonalityTestPage() {
   const [xpAmount, setXpAmount] = useState(0)
   const [showBadge, setShowBadge] = useState(false)
   const [unlockedBadge, setUnlockedBadge] = useState<any>(null)
+  const [isSavingResult, setIsSavingResult] = useState(false)
 
   const question = PERSONALITY_QUESTIONS[currentQuestion]
   const progress = ((currentQuestion + 1) / PERSONALITY_QUESTIONS.length) * 100
@@ -44,9 +45,33 @@ export default function PersonalityTestPage() {
     }
   }
 
-  const handleComplete = () => {
+  const handleComplete = async () => {
+    setIsSavingResult(true)
+
     const result = calculatePersonalityScores(responses)
-    localStorage.setItem("personalityResult", JSON.stringify(result))
+
+    let character: CharacterProfile | null = null
+    try {
+      const res = await fetch("/api/character/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          scores: result.scores,
+          topTraits: result.topTraits,
+          summary: result.summary,
+        }),
+      })
+
+      if (res.ok) {
+        const data = await res.json()
+        character = data.character as CharacterProfile
+      }
+    } catch (err) {
+      console.error("Character generation failed", err)
+    }
+
+    const resultToStore = character ? { ...result, character } : result
+    localStorage.setItem("personalityResult", JSON.stringify(resultToStore))
 
     // Award completion XP and badge
     const { newXP, leveledUp } = awardXP(50, "Completed personality test")
@@ -62,6 +87,8 @@ export default function PersonalityTestPage() {
     } else {
       router.push("/test/results")
     }
+
+    setIsSavingResult(false)
   }
 
   if (isComplete) {
@@ -110,8 +137,8 @@ export default function PersonalityTestPage() {
                   We're analyzing your personality to create your perfect story...
                 </p>
               </div>
-              <NeonButton onClick={handleComplete} glowColor="violet" className="w-full">
-                View Your Results
+              <NeonButton onClick={handleComplete} glowColor="violet" className="w-full" disabled={isSavingResult}>
+                {isSavingResult ? "Preparing your character..." : "View Your Results"}
               </NeonButton>
             </div>
           </HUDPanel>

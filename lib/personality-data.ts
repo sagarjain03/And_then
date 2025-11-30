@@ -731,10 +731,21 @@ export interface PersonalityScores {
   [key: string]: number
 }
 
+export interface CharacterProfile {
+  name: string
+  archetype: string
+  role: string
+  description: string
+  strengths: string[]
+  weaknesses: string[]
+  preferredGenres: string[]
+}
+
 export interface PersonalityResult {
   scores: PersonalityScores
   topTraits: string[]
   summary: string
+  character?: CharacterProfile
 }
 
 export function calculatePersonalityScores(responses: Record<number, string>): PersonalityResult {

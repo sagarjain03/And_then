@@ -45,9 +45,15 @@ export default function DashboardPage() {
     localStorage.setItem("currentStory", JSON.stringify(story))
   }
 
-  const handleLogout = () => {
-    localStorage.clear()
-    window.location.href = "/"
+  const handleLogout = async () => {
+    try {
+      await fetch("/api/auth/logout", { method: "POST" })
+    } catch (err) {
+      console.error("Logout error", err)
+    } finally {
+      localStorage.clear()
+      window.location.href = "/"
+    }
   }
 
   if (isLoading) {

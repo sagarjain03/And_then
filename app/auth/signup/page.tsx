@@ -3,24 +3,57 @@
 import type React from "react"
 
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent } from "@/components/ui/card"
 
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? ""
 
 export default function SignupPage() {
+  const router = useRouter()
+  const [username, setUsername] = useState("")
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [confirmPassword, setConfirmPassword] = useState("")
   const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault()
+
+    if (password !== confirmPassword) {
+      setError("Passwords do not match")
+      return
+    }
+
     setIsLoading(true)
-    // TODO: Implement signup logic
-    setTimeout(() => setIsLoading(false), 1000)
+    setError(null)
+
+    try {
+      const res = await fetch(`${API_BASE_URL || ""}/api/auth/register`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, email, password }),
+      })
+
+      const data = await res.json()
+
+      if (!res.ok) {
+        setError(data.error || "Failed to create account. Please try again.")
+        return
+      }
+
+      // After successful signup, send the user to login
+      router.push("/auth/login")
+    } catch (err) {
+      console.error("Signup error", err)
+      setError("Something went wrong. Please try again.")
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (
@@ -36,6 +69,18 @@ export default function SignupPage() {
       <Card className="border-border">
         <CardContent className="pt-6">
           <form onSubmit={handleSignup} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="username">Username</Label>
+              <Input
+                id="username"
+                type="text"
+                placeholder="your-username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                required
+              />
+            </div>
+
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <Input
@@ -71,6 +116,8 @@ export default function SignupPage() {
                 required
               />
             </div>
+
+            {error && <p className="text-sm text-red-500">{error}</p>}
 
             <Button type="submit" className="w-full" disabled={isLoading}>
               {isLoading ? "Creating Account..." : "Create Account"}

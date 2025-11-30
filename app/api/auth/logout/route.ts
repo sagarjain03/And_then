@@ -1,26 +1,16 @@
-import {connectDB} from "@/db/dbconfig"
-import User from "@/models/user.model";
 import { NextRequest, NextResponse } from "next/server";
 
-connectDB()
+export async function POST(request: NextRequest) {
+  try {
+    const response = NextResponse.json({
+      message: "Logout successful",
+      success: true,
+    });
 
-export async function POST(request: NextRequest){
-    try {
-    
-       
-       
-        const response =  NextResponse.json({
-            message: "Logout successful",
-            success: true,
-           
-        })
+    response.cookies.set("token", "", { httpOnly: true, expires: new Date(0) });
 
-        response.cookies.set("token", "", {httpOnly: true, expires: new Date(0)})
-
-        return response
-        
-    } catch (error) {
-        return NextResponse.json({error: "Something went wrong"}, {status: 500})
-
-    }
+    return response;
+  } catch (error) {
+    return NextResponse.json({ error: "Something went wrong" }, { status: 500 });
+  }
 }
