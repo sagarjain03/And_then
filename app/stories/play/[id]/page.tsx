@@ -1,12 +1,38 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, useRef, useMemo } from "react"
 import { useRouter, useParams } from "next/navigation"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { type Story, STORY_GENRES } from "@/lib/story-data"
 import { BookOpen, ChevronLeft, Loader2, Volume2 } from "lucide-react"
+
+// Map each story genre to a background image and music track.
+// Place the referenced assets in your public/ directory, e.g.
+// /public/audio/fantasy-theme.mp3, /public/backgrounds/fantasy.jpg, etc.
+const GENRE_MEDIA: Record<string, { bgImage: string; audioSrc: string }> = {
+  fantasy: {
+    bgImage: "url('/backgrounds/fantasy.png')",
+    audioSrc: "/audio/fantasy.mpeg",
+  },
+  scifi: {
+    bgImage: "url('/backgrounds/sci-fi.png')",
+    audioSrc: "/audio/scifi.mpeg",
+  },
+  mystery: {
+    bgImage: "url('/backgrounds/mystery.png')",
+    audioSrc: "/audio/mystery.mpeg",
+  },
+  romance: {
+    bgImage: "url('/backgrounds/romance.png')",
+    audioSrc: "/audio/romance.mpeg",
+  },
+  adventure: {
+    bgImage: "url('/backgrounds/adventure.png')",
+    audioSrc: "/audio/adventure.mpeg",
+  },
+}
 
 export default function StoryPlayPage() {
   const router = useRouter()
@@ -25,6 +51,13 @@ export default function StoryPlayPage() {
       }
     | null
   >(null)
+  const [isMusicEnabled, setIsMusicEnabled] = useState(true)
+  const audioRef = useRef<HTMLAudioElement | null>(null)
+
+  const genreMedia = useMemo(() => {
+    if (!story) return null
+    return GENRE_MEDIA[story.genre] || null
+  }, [story])
 
   useEffect(() => {
     const loadStory = async () => {
@@ -53,6 +86,33 @@ export default function StoryPlayPage() {
 
     void loadStory()
   }, [storyId])
+
+  // Background music effect — starts when a story with a known genre is loaded.
+  useEffect(() => {
+    if (!genreMedia) return
+
+    // Clean up any previous audio instance
+    if (audioRef.current) {
+      audioRef.current.pause()
+      audioRef.current = null
+    }
+
+    const audio = new Audio(genreMedia.audioSrc)
+    audio.loop = true
+    audio.volume = 0.35
+    audioRef.current = audio
+
+    if (isMusicEnabled) {
+      void audio.play().catch((err) => {
+        console.warn("Autoplay music blocked or failed", err)
+      })
+    }
+
+    return () => {
+      audio.pause()
+      audioRef.current = null
+    }
+  }, [genreMedia, isMusicEnabled])
 
   // Typewriter effect
   useEffect(() => {
@@ -198,7 +258,17 @@ export default function StoryPlayPage() {
   const genre = STORY_GENRES.find((g) => g.id === story.genre)
 
   return (
-    <div className="min-h-screen bg-background py-8 px-4">
+    <div className="min-h-screen relative overflow-hidden py-8 px-4">
+      {/* Genre-based background */}
+      {genreMedia && (
+        <div
+          className="absolute inset-0 -z-10 bg-cover bg-center"
+          style={{ backgroundImage: genreMedia.bgImage }}
+        />
+      )}
+      {/* Dark overlay for readability */}
+      <div className="absolute inset-0 -z-10 bg-gradient-to-b from-black/80 via-black/75 to-black/90" />
+
       <div className="max-w-3xl mx-auto">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
@@ -209,12 +279,33 @@ export default function StoryPlayPage() {
             </Button>
           </Link>
           <div className="text-center flex-1">
-            <div className="text-2xl mb-2">{genre?.icon}</div>
-            <h1 className="text-2xl font-bold">{story.title}</h1>
+            <div className="text-2xl mb-1">{genre?.icon}</div>
+            <h1 className="text-2xl font-bold truncate max-w-[16rem] mx-auto">{story.title}</h1>
           </div>
-          <Button variant="ghost" size="sm" onClick={handleSaveStory}>
-            Save Story
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="ghost"
+              size="icon"
+              type="button"
+              aria-label={isMusicEnabled ? "Mute background music" : "Play background music"}
+              onClick={() => {
+                const next = !isMusicEnabled
+                setIsMusicEnabled(next)
+                if (!next && audioRef.current) {
+                  audioRef.current.pause()
+                } else if (next && audioRef.current) {
+                  void audioRef.current.play().catch((err) => {
+                    console.warn("Could not resume music", err)
+                  })
+                }
+              }}
+            >
+              <Volume2 className={`w-5 h-5 ${isMusicEnabled ? "text-primary" : "text-muted-foreground"}`} />
+            </Button>
+            <Button variant="ghost" size="sm" onClick={handleSaveStory}>
+              Save Story
+            </Button>
+          </div>
         </div>
 
         {/* Story Content */}

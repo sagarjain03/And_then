@@ -1,0 +1,5 @@
+{
+    "github.copilot.chat.alternateGptPrompt.enabled": true,
+    "github.copilot.chat.anthropic.thinking.enabled": true,
+    "github.copilot.chat.editor.temporalContext.enabled": true
+}
