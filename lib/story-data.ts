@@ -1,9 +1,26 @@
+import type { CharacterProfile } from "./personality-data"
+
 export interface StoryGenre {
   id: string
   name: string
   description: string
   icon: string
   prompt: string
+}
+
+export type ChoiceQuality = "excellent" | "good" | "average" | "bad"
+
+export interface StoryChoice {
+  id: string
+  text: string
+  consequence?: string
+  nextContent?: string
+}
+
+export interface StoryChoiceHistoryEntry {
+  segmentIndex: number
+  choiceId: string
+  quality?: ChoiceQuality
 }
 
 export interface Story {
@@ -14,14 +31,10 @@ export interface Story {
   choices: StoryChoice[]
   currentChoiceIndex: number
   personalityTraits: Record<string, number>
+  character?: CharacterProfile
   createdAt: Date
-}
-
-export interface StoryChoice {
-  id: string
-  text: string
-  consequence: string
-  nextContent?: string
+  isStoryComplete?: boolean
+  choiceHistory?: StoryChoiceHistoryEntry[]
 }
 
 export const STORY_GENRES: StoryGenre[] = [

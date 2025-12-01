@@ -1,20 +1,145 @@
-import { generateDemoStory } from "@/lib/story-templates"
-import { getGenreById } from "@/lib/story-data"
+import { NextRequest, NextResponse } from "next/server"
+import { z } from "zod"
+import { generateObject } from "ai"
+import { createGoogleGenerativeAI } from "@ai-sdk/google"
+import { getGenreById, type StoryChoice, type ChoiceQuality } from "@/lib/story-data"
+import type { CharacterProfile } from "@/lib/personality-data"
 
-export async function POST(request: Request) {
+const google = createGoogleGenerativeAI({
+  apiKey: process.env.GOOGLE_GENERATIVE_AI_API_KEY || "",
+})
+
+const StoryTurnSchema = z.object({
+  content: z.string(),
+  isStoryComplete: z.boolean().default(false),
+  choices: z
+    .array(
+      z.object({
+        id: z.string(),
+        text: z.string(),
+      }),
+    )
+    .min(1)
+    .max(4),
+  lastChoiceEvaluation: z
+    .object({
+      quality: z.enum(["excellent", "good", "average", "bad"] as const),
+      message: z.string(),
+    })
+    .optional(),
+})
+
+interface GenerateBody {
+  genreId: string
+  personalityTraits: Record<string, number>
+  character?: CharacterProfile
+  previousContent?: string
+  lastChoice?: {
+    id: string
+    text: string
+  }
+  choiceHistory?: Array<{
+    segmentIndex: number
+    choiceId: string
+    quality?: ChoiceQuality
+  }>
+}
+
+export async function POST(request: NextRequest) {
   try {
-    const { genreId, personalityTraits, previousContent } = await request.json()
+    if (!process.env.GOOGLE_GENERATIVE_AI_API_KEY) {
+      return NextResponse.json({ error: "GOOGLE_GENERATIVE_AI_API_KEY is not configured" }, { status: 500 })
+    }
+
+    const body = (await request.json()) as GenerateBody
+    const { genreId, personalityTraits, character, previousContent, lastChoice, choiceHistory = [] } = body
 
     const genre = getGenreById(genreId)
     if (!genre) {
-      return Response.json({ error: "Invalid genre" }, { status: 400 })
+      return NextResponse.json({ error: "Invalid genre" }, { status: 400 })
     }
 
-    const result = generateDemoStory(genreId, personalityTraits, previousContent)
+    const traitDescriptions = Object.entries(personalityTraits || {})
+      .map(([trait, value]) => `${trait}: ${value}`)
+      .join(", ")
 
-    return Response.json(result)
+    const historyDescription = choiceHistory
+      .map((entry) => `Step ${entry.segmentIndex + 1}: choice ${entry.choiceId}${entry.quality ? ` (${entry.quality})` : ""}`)
+      .join("; ")
+
+    const characterSnippet = character
+      ? `The reader's story avatar is:\nName: ${character.name}\nArchetype: ${character.archetype}\nRole: ${character.role}\nDescription: ${character.description}\nStrengths: ${character.strengths.join(", ")}\nWeaknesses: ${character.weaknesses.join(", ")}\nPreferred genres: ${character.preferredGenres.join(", ")}`
+      : "No explicit avatar was provided; infer from traits."
+
+    const previousContentSnippet = previousContent
+      ? `Previous story content (what has already happened):\n${previousContent}`
+      : "This is the beginning of the story."
+
+    const lastChoiceSnippet = lastChoice
+      ? `The reader just chose option '${lastChoice.text}' (id: ${lastChoice.id}). Evaluate how strong or risky this decision was and adjust the narrative accordingly.`
+      : "The reader has not made any choices yet (this is the opening)."
+
+    const { object } = await generateObject({
+      model: google("gemini-2.5-pro"),
+      schema: StoryTurnSchema,
+      prompt: `You are an interactive story engine for a ${genre.name.toLowerCase()} narrative.
+
+Personality traits (0-100): ${traitDescriptions || "balanced and adaptable"}
+${characterSnippet}
+
+Choice history so far: ${historyDescription || "no previous choices yet"}
+
+${previousContentSnippet}
+
+${lastChoiceSnippet}
+
+Continue the story using the avatar as the main character.
+
+Language and style:
+- Write in simple, clear English that anyone can understand.
+- Avoid fancy, rare, or poetic words. Prefer everyday vocabulary.
+- Use short, direct sentences (around 10–15 words each).
+- Keep the tone friendly and easy to follow.
+
+Story guidelines:
+- Use 2-4 short paragraphs for this step.
+- Let the story length be dynamic: early choices should open up the world; later risky or climactic choices should push toward a satisfying conclusion.
+- When the story feels naturally resolved, set isStoryComplete = true and wrap up clearly.
+- Otherwise, set isStoryComplete = false and leave space for more choices.
+
+About choices:
+- After the new story content, imagine 2-4 meaningful next decisions the avatar could take.
+- Write each choice in simple English, with one clear action.
+- These choices must significantly shape the future tone, risk, or direction of the story.
+- Do NOT include the choices in the story text itself; only list them in the JSON "choices" field.
+
+About evaluating the last choice (if there was one):
+- If lastChoice is provided, classify it as one of: excellent, good, average, bad.
+- excellent: especially aligned with the avatar's strengths and leads to very positive or heroic outcomes.
+- good: generally wise or kind, aligning with their better traits.
+- average: neutral, safe, or mixed consequences.
+- bad: reckless, unethical, or clearly harmful for the character or others.
+- Provide a short, encouraging message explaining why in "lastChoiceEvaluation.message".
+- If there was no previous choice, you may omit lastChoiceEvaluation.
+
+Return ONLY a JSON object matching the provided schema (no extra commentary, no markdown).`,
+    })
+
+    const turn = StoryTurnSchema.parse(object)
+
+    const choices: StoryChoice[] = turn.choices.map((c) => ({
+      id: c.id,
+      text: c.text,
+    }))
+
+    return NextResponse.json({
+      content: turn.content,
+      choices,
+      isStoryComplete: turn.isStoryComplete,
+      lastChoiceEvaluation: turn.lastChoiceEvaluation,
+    })
   } catch (error) {
     console.error("Story generation error:", error)
-    return Response.json({ error: "Failed to generate story" }, { status: 500 })
+    return NextResponse.json({ error: "Failed to generate story" }, { status: 500 })
   }
 }

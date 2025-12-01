@@ -1,29 +1,41 @@
 import { type NextRequest, NextResponse } from "next/server"
-
-// TODO: Replace with actual database integration
-const savedStories: Map<string, object[]> = new Map()
+import { getDataFromToken } from "@/helpers/getDataFromToken"
+import { connectDB } from "@/db/dbconfig"
+import Story from "@/models/story.model"
 
 export async function POST(request: NextRequest) {
   try {
-    const { userId, story } = await request.json()
+    const userId = getDataFromToken(request)
+    if (!userId) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
 
-    if (!userId || !story) {
+    const { story } = await request.json()
+
+    if (!story) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 })
     }
 
-    const userStories = savedStories.get(userId) || []
-    const storyWithMetadata = {
-      ...story,
-      savedAt: new Date(),
-    }
+    await connectDB()
 
-    userStories.push(storyWithMetadata)
-    savedStories.set(userId, userStories)
+    const doc = await Story.create({
+      userId,
+      title: story.title,
+      genre: story.genre,
+      content: story.content,
+      choices: story.choices,
+      currentChoiceIndex: story.currentChoiceIndex,
+      personalityTraits: story.personalityTraits,
+      character: story.character,
+      isStoryComplete: story.isStoryComplete ?? false,
+      choiceHistory: story.choiceHistory ?? [],
+      savedAt: new Date(),
+    })
 
     return NextResponse.json(
       {
         message: "Story saved",
-        story: storyWithMetadata,
+        story: doc,
       },
       { status: 201 },
     )

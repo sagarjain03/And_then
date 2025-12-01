@@ -1,17 +1,18 @@
 import { type NextRequest, NextResponse } from "next/server"
-
-// TODO: Replace with actual database integration
-const savedStories: Map<string, object[]> = new Map()
+import { getDataFromToken } from "@/helpers/getDataFromToken"
+import { connectDB } from "@/db/dbconfig"
+import Story from "@/models/story.model"
 
 export async function GET(request: NextRequest) {
   try {
-    const userId = request.nextUrl.searchParams.get("userId")
-
+    const userId = getDataFromToken(request)
     if (!userId) {
-      return NextResponse.json({ error: "User ID is required" }, { status: 400 })
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    const userStories = savedStories.get(userId) || []
+    await connectDB()
+
+    const userStories = await Story.find({ userId }).sort({ updatedAt: -1 }).lean()
 
     return NextResponse.json(
       {

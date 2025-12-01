@@ -1,9 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { getDataFromToken } from "@/helpers/getDataFromToken"
-
-// TODO: Replace with actual database integration
-// For now, we accept the personality data and store it in memory or just acknowledge it.
-const personalityResults: Map<string, object> = new Map()
+import { connectDB } from "@/db/dbconfig"
+import PersonalityProfile from "@/models/personalityProfile.model"
 
 export async function POST(request: NextRequest) {
   try {
@@ -12,26 +10,30 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    const { scores, topTraits, summary } = await request.json()
+    const { scores, topTraits, summary, character } = await request.json()
 
     if (!scores) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 })
     }
 
-    const result = {
-      userId,
-      scores,
-      topTraits,
-      summary,
-      createdAt: new Date(),
-    }
+    await connectDB()
 
-    personalityResults.set(userId, result)
+    const doc = await PersonalityProfile.findOneAndUpdate(
+      { userId },
+      {
+        userId,
+        scores,
+        topTraits,
+        summary,
+        character: character || undefined,
+      },
+      { upsert: true, new: true, setDefaultsOnInsert: true },
+    )
 
     return NextResponse.json(
       {
         message: "Personality result saved",
-        result,
+        result: doc,
       },
       { status: 201 },
     )

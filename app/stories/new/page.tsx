@@ -7,7 +7,8 @@ import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { STORY_GENRES, type PersonalityResult } from "@/lib/story-data"
+import { STORY_GENRES } from "@/lib/story-data"
+import type { PersonalityResult } from "@/lib/personality-data"
 import { BookOpen, Loader2 } from "lucide-react"
 
 export default function NewStoryPage() {
@@ -35,6 +36,7 @@ export default function NewStoryPage() {
         body: JSON.stringify({
           genreId: selectedGenre,
           personalityTraits: personalityResult.scores,
+          character: personalityResult.character,
         }),
       })
 
@@ -51,7 +53,10 @@ export default function NewStoryPage() {
         choices: data.choices,
         currentChoiceIndex: 0,
         personalityTraits: personalityResult.scores,
+        character: personalityResult.character,
         createdAt: new Date(),
+        isStoryComplete: data.isStoryComplete ?? false,
+        choiceHistory: [],
       }
 
       localStorage.setItem("currentStory", JSON.stringify(story))

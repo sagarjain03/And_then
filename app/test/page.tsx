@@ -73,6 +73,17 @@ export default function PersonalityTestPage() {
     const resultToStore = character ? { ...result, character } : result
     localStorage.setItem("personalityResult", JSON.stringify(resultToStore))
 
+    // Persist personality to MongoDB
+    try {
+      await fetch("/api/personality/save", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(resultToStore),
+      })
+    } catch (err) {
+      console.error("Failed to save personality to DB", err)
+    }
+
     // Award completion XP and badge
     const { newXP, leveledUp } = awardXP(50, "Completed personality test")
     const badgeUnlocked = unlockBadge("first-test")

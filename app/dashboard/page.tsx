@@ -12,36 +12,66 @@ import { type Story, STORY_GENRES, type PersonalityResult } from "@/lib/story-da
 import { getUserStats, type UserStats } from "@/lib/gamification"
 import { BookOpen, Plus, Trash2, Play, BarChart3, LogOut, Award, Zap, Trophy } from "lucide-react"
 
+interface CurrentUser {
+  id: string
+  username: string
+  email: string
+}
+
 export default function DashboardPage() {
+  const [currentUser, setCurrentUser] = useState<CurrentUser | null>(null)
   const [savedStories, setSavedStories] = useState<Story[]>([])
   const [personalityResult, setPersonalityResult] = useState<PersonalityResult | null>(null)
   const [stats, setStats] = useState<UserStats>(getUserStats())
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    const stored = localStorage.getItem("savedStories")
-    if (stored) {
-      setSavedStories(JSON.parse(stored))
+    const init = async () => {
+      try {
+        const res = await fetch("/api/dashboard")
+        if (!res.ok) {
+          window.location.href = "/auth/login"
+          return
+        }
+
+        const data = await res.json()
+        setCurrentUser(data.user)
+        setSavedStories(data.stories || [])
+        setPersonalityResult(data.personality || null)
+
+        // For now, stats still come from local gamification; can be moved to DB later.
+        setStats(getUserStats())
+      } catch (err) {
+        console.error("Failed to load dashboard:", err)
+        window.location.href = "/auth/login"
+      } finally {
+        setIsLoading(false)
+      }
     }
 
-    const personality = localStorage.getItem("personalityResult")
-    if (personality) {
-      setPersonalityResult(JSON.parse(personality))
-    }
-
-    setStats(getUserStats())
-    setIsLoading(false)
+    void init()
   }, [])
 
-  const handleDeleteStory = (id: string) => {
-    if (confirm("Are you sure you want to delete this story?")) {
-      const updated = savedStories.filter((s) => s.id !== id)
+  const handleDeleteStory = async (id: string) => {
+    if (!currentUser) return
+    if (!confirm("Are you sure you want to delete this story?")) return
+
+    try {
+      const res = await fetch(`/api/stories/${id}`, { method: "DELETE" })
+      if (!res.ok) {
+        alert("Failed to delete story")
+        return
+      }
+      const updated = savedStories.filter((s) => (s as any)._id !== id && s.id !== id)
       setSavedStories(updated)
-      localStorage.setItem("savedStories", JSON.stringify(updated))
+    } catch (err) {
+      console.error("Delete story error", err)
+      alert("Failed to delete story")
     }
   }
 
   const handlePlayStory = (story: Story) => {
+    // Keep currentStory in localStorage for quick resume; persistence lives in MongoDB.
     localStorage.setItem("currentStory", JSON.stringify(story))
   }
 

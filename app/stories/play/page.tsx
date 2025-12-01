@@ -15,6 +15,13 @@ export default function StoryPlayPage() {
   const [isGeneratingNext, setIsGeneratingNext] = useState(false)
   const [displayedContent, setDisplayedContent] = useState("")
   const [isTyping, setIsTyping] = useState(false)
+  const [choiceFeedback, setChoiceFeedback] = useState<
+    | {
+        quality: "excellent" | "good" | "average" | "bad"
+        message: string
+      }
+    | null
+  >(null)
 
   useEffect(() => {
     const stored = localStorage.getItem("currentStory")
@@ -44,8 +51,17 @@ export default function StoryPlayPage() {
     return () => clearInterval(interval)
   }, [story]) // Updated dependency to story
 
+  // Auto-hide choice feedback after a short delay
+  useEffect(() => {
+    if (!choiceFeedback) return
+    const timeout = setTimeout(() => setChoiceFeedback(null), 3000)
+    return () => clearTimeout(timeout)
+  }, [choiceFeedback])
+
   const handleChoice = async (choiceIndex: number) => {
     if (!story) return
+
+    const selectedChoice = story.choices[choiceIndex]
 
     setIsGeneratingNext(true)
     try {
@@ -55,7 +71,13 @@ export default function StoryPlayPage() {
         body: JSON.stringify({
           genreId: story.genre,
           personalityTraits: story.personalityTraits,
+          character: story.character,
           previousContent: story.content,
+          lastChoice: {
+            id: selectedChoice.id,
+            text: selectedChoice.text,
+          },
+          choiceHistory: story.choiceHistory ?? [],
         }),
       })
 
@@ -68,11 +90,24 @@ export default function StoryPlayPage() {
         content: data.content,
         choices: data.choices,
         currentChoiceIndex: story.currentChoiceIndex + 1,
+        isStoryComplete: data.isStoryComplete ?? story.isStoryComplete,
+        choiceHistory: [
+          ...(story.choiceHistory ?? []),
+          {
+            segmentIndex: story.currentChoiceIndex,
+            choiceId: selectedChoice.id,
+            quality: data.lastChoiceEvaluation?.quality,
+          },
+        ],
       }
 
       setStory(updatedStory)
       setDisplayedContent("")
       localStorage.setItem("currentStory", JSON.stringify(updatedStory))
+
+      if (data.lastChoiceEvaluation) {
+        setChoiceFeedback(data.lastChoiceEvaluation)
+      }
     } catch (error) {
       console.error("Error generating next part:", error)
       alert("Failed to continue story. Please try again.")
@@ -81,18 +116,26 @@ export default function StoryPlayPage() {
     }
   }
 
-  const handleSaveStory = () => {
+  const handleSaveStory = async () => {
     if (!story) return
 
-    const savedStories = JSON.parse(localStorage.getItem("savedStories") || "[]")
-    const storyToSave = {
-      ...story,
-      savedAt: new Date(),
-    }
+    try {
+      const res = await fetch("/api/stories/save", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ story }),
+      })
 
-    savedStories.push(storyToSave)
-    localStorage.setItem("savedStories", JSON.stringify(savedStories))
-    alert("Story saved!")
+      if (!res.ok) {
+        alert("Failed to save story")
+        return
+      }
+
+      alert("Story saved!")
+    } catch (err) {
+      console.error("Save story error", err)
+      alert("Failed to save story")
+    }
   }
 
   if (isLoading) {
@@ -190,7 +233,7 @@ export default function StoryPlayPage() {
         )}
 
         {/* Story Stats */}
-        <Card className="border-border bg-card/50">
+        <Card className="border-border bg-card/50 mb-4">
           <CardContent className="pt-4 pb-4">
             <div className="flex items-center justify-between text-sm text-muted-foreground">
               <span>Chapter {story.currentChoiceIndex + 1}</span>
@@ -202,6 +245,25 @@ export default function StoryPlayPage() {
             </div>
           </CardContent>
         </Card>
+
+        {/* Choice Feedback Popup */}
+        {choiceFeedback && (
+          <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50">
+            <div
+              className={`px-6 py-3 rounded-full shadow-lg border text-sm font-medium bg-card/95 backdrop-blur-xl ${
+                choiceFeedback.quality === "excellent"
+                  ? "border-emerald-400 text-emerald-200"
+                  : choiceFeedback.quality === "good"
+                  ? "border-sky-400 text-sky-200"
+                  : choiceFeedback.quality === "average"
+                  ? "border-zinc-500 text-zinc-200"
+                  : "border-red-500 text-red-200"
+              }`}
+            >
+              {choiceFeedback.message}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )
