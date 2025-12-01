@@ -8,6 +8,8 @@ const PersonalityProfileSchema = new Schema(
     summary: { type: String, required: true },
     character: {
       name: String,
+      // Explicit anime title so results clearly show which series the character is from
+      anime: String,
       archetype: String,
       role: String,
       description: String,

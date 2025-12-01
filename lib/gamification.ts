@@ -56,11 +56,7 @@ export function getXPForNextLevel(level: number): number {
   return level * 100
 }
 
-export function getUserStats(): UserStats {
-  const stored = localStorage.getItem("userStats")
-  if (stored) {
-    return JSON.parse(stored)
-  }
+export function getDefaultUserStats(): UserStats {
   return {
     level: 1,
     xp: 0,
@@ -71,42 +67,54 @@ export function getUserStats(): UserStats {
   }
 }
 
-export function updateUserStats(updates: Partial<UserStats>): UserStats {
-  const current = getUserStats()
-  const updated = { ...current, ...updates }
-
-  if (updates.xp !== undefined) {
-    updated.level = calculateLevel(updated.xp)
-    updated.xpToNextLevel = getXPForNextLevel(updated.level)
-  }
-
-  localStorage.setItem("userStats", JSON.stringify(updated))
-  return updated
-}
-
-export function awardXP(amount: number, reason: string): { newXP: number; leveledUp: boolean } {
-  const stats = getUserStats()
-  const oldLevel = stats.level
-  const newXP = stats.xp + amount
-  const newLevel = calculateLevel(newXP)
-
-  updateUserStats({ xp: newXP })
-
-  return {
-    newXP,
-    leveledUp: newLevel > oldLevel,
+export async function fetchUserStats(): Promise<UserStats> {
+  try {
+    const res = await fetch("/api/gamification", { cache: "no-store" })
+    if (!res.ok) {
+      return getDefaultUserStats()
+    }
+    const data = (await res.json()) as { stats: UserStats }
+    return data.stats
+  } catch (err) {
+    console.error("Failed to fetch user stats", err)
+    return getDefaultUserStats()
   }
 }
 
-export function unlockBadge(badgeId: string): boolean {
-  const stats = getUserStats()
+export async function updateUserStats(updates: Partial<UserStats>): Promise<UserStats> {
+  try {
+    const res = await fetch("/api/gamification", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ updates }),
+    })
+    if (!res.ok) {
+      throw new Error("Failed to update user stats")
+    }
+    const data = (await res.json()) as { stats: UserStats }
+    return data.stats
+  } catch (err) {
+    console.error("Failed to update user stats", err)
+    return getDefaultUserStats()
+  }
+}
+
+export async function awardXP(amount: number, _reason: string): Promise<void> {
+  const current = await fetchUserStats()
+  const newXP = current.xp + amount
+  await updateUserStats({ xp: newXP })
+}
+
+export async function unlockBadge(badgeId: string): Promise<boolean> {
+  const current = await fetchUserStats()
   const badge = BADGES.find((b) => b.id === badgeId)
 
-  if (!badge || stats.badges.some((b) => b.id === badgeId)) {
+  if (!badge || current.badges.some((b) => b.id === badgeId)) {
     return false
   }
 
   const unlockedBadge = { ...badge, unlockedAt: new Date() }
-  updateUserStats({ badges: [...stats.badges, unlockedBadge] })
+  const updatedBadges = [...current.badges, unlockedBadge]
+  await updateUserStats({ badges: updatedBadges })
   return true
 }

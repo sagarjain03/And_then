@@ -5,23 +5,29 @@ import User from "@/models/user.model"
 import Story from "@/models/story.model"
 import PersonalityProfile from "@/models/personalityProfile.model"
 
-export async function GET(request: NextRequest) {
+interface RouteContext {
+  params: Promise<{ id: string }>
+}
+
+export async function GET(request: NextRequest, context: RouteContext) {
   try {
-    const userId = getDataFromToken(request)
-    if (!userId) {
+    const { id: pathUserId } = await context.params
+    const tokenUserId = getDataFromToken(request)
+
+    if (!tokenUserId || tokenUserId !== pathUserId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
     await connectDB()
 
-    const user = await User.findById(userId).select("_id username email")
+    const user = await User.findById(tokenUserId).select("_id username email")
     if (!user) {
       return NextResponse.json({ error: "User not found" }, { status: 404 })
     }
 
     const [stories, personality] = await Promise.all([
-      Story.find({ userId }).sort({ updatedAt: -1 }).lean(),
-      PersonalityProfile.findOne({ userId }).lean(),
+      Story.find({ userId: tokenUserId }).sort({ updatedAt: -1 }).lean(),
+      PersonalityProfile.findOne({ userId: tokenUserId }).lean(),
     ])
 
     const normalizeScores = (s: any) => {
@@ -41,17 +47,15 @@ export async function GET(request: NextRequest) {
         }
       : null
 
-    // Build a lightweight userProfile object for dashboard personalization.
     const characterName =
       personalityResult?.character?.name?.trim() || user.username || "Explorer"
-    const preferredGenres =
-      personalityResult?.character?.preferredGenres || []
+    const preferredGenres = personalityResult?.character?.preferredGenres || []
     const topGenre = preferredGenres[0] || null
     const topTrait = personalityResult?.topTraits?.[0] || null
 
     const userProfile = {
       character_name: characterName,
-      preferred_language: "en", // Default app language; extend when per-user language is stored.
+      preferred_language: "en",
       preferences: {
         top_genre: topGenre,
         top_trait: topTrait,
@@ -77,7 +81,6 @@ export async function GET(request: NextRequest) {
         userProfile,
         dashboard_snippet: dashboardSnippet,
       },
-      // Keep existing fields so current dashboard UI continues to work.
       user: {
         id: user._id.toString(),
         username: user.username,
@@ -89,7 +92,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(responseBody)
   } catch (error: any) {
-    console.error("Dashboard error:", error)
+    console.error("Dashboard (by id) error:", error)
     return NextResponse.json({ error: error.message || "Internal server error" }, { status: 500 })
   }
 }

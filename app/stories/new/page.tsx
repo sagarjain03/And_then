@@ -2,7 +2,7 @@
 
 import React from "react"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
@@ -17,12 +17,22 @@ export default function NewStoryPage() {
   const [isGenerating, setIsGenerating] = useState(false)
   const [personalityResult, setPersonalityResult] = useState<PersonalityResult | null>(null)
 
-  // Load personality result from localStorage
-  React.useEffect(() => {
-    const stored = localStorage.getItem("personalityResult")
-    if (stored) {
-      setPersonalityResult(JSON.parse(stored))
+  // Load personality result from MongoDB
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const res = await fetch("/api/personality")
+        if (!res.ok) return
+        const data = (await res.json()) as { result: PersonalityResult | null }
+        if (data.result) {
+          setPersonalityResult(data.result)
+        }
+      } catch (err) {
+        console.error("Failed to load personality for story generation", err)
+      }
     }
+
+    void load()
   }, [])
 
   const handleGenerateStory = async () => {
@@ -44,9 +54,7 @@ export default function NewStoryPage() {
 
       const data = await response.json()
 
-      // Store story in localStorage for now
-      const story = {
-        id: `story-${Date.now()}`,
+      const storyPayload = {
         title: `${STORY_GENRES.find((g) => g.id === selectedGenre)?.name} Adventure`,
         genre: selectedGenre,
         content: data.content,
@@ -54,13 +62,24 @@ export default function NewStoryPage() {
         currentChoiceIndex: 0,
         personalityTraits: personalityResult.scores,
         character: personalityResult.character,
-        createdAt: new Date(),
         isStoryComplete: data.isStoryComplete ?? false,
         choiceHistory: [],
       }
 
-      localStorage.setItem("currentStory", JSON.stringify(story))
-      router.push("/stories/play")
+      // Persist initial story state to MongoDB and redirect to play view for that story
+      const saveRes = await fetch("/api/stories/save", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ story: storyPayload }),
+      })
+
+      if (!saveRes.ok) throw new Error("Failed to save story")
+
+      const saved = await saveRes.json()
+      const storyId = saved.story?._id || saved.story?.id
+      if (!storyId) throw new Error("Story ID missing from save response")
+
+      router.push(`/stories/play/${storyId}`)
     } catch (error) {
       console.error("Error generating story:", error)
       alert("Failed to generate story. Please try again.")

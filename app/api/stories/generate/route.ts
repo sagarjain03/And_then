@@ -67,8 +67,27 @@ export async function POST(request: NextRequest) {
       .map((entry) => `Step ${entry.segmentIndex + 1}: choice ${entry.choiceId}${entry.quality ? ` (${entry.quality})` : ""}`)
       .join("; ")
 
+    const maxChapters = 20
+    const chaptersSoFar = choiceHistory.length
+    const chaptersRemaining = Math.max(0, maxChapters - chaptersSoFar)
+
+    const qualityCounts = {
+      excellent: 0,
+      good: 0,
+      average: 0,
+      bad: 0,
+    } as Record<ChoiceQuality, number>
+
+    for (const entry of choiceHistory) {
+      if (entry.quality && qualityCounts[entry.quality] !== undefined) {
+        qualityCounts[entry.quality] += 1
+      }
+    }
+
+    const qualitySummary = `excellent=${qualityCounts.excellent}, good=${qualityCounts.good}, average=${qualityCounts.average}, bad=${qualityCounts.bad}`
+
     const characterSnippet = character
-      ? `The reader's story avatar is:\nName: ${character.name}\nArchetype: ${character.archetype}\nRole: ${character.role}\nDescription: ${character.description}\nStrengths: ${character.strengths.join(", ")}\nWeaknesses: ${character.weaknesses.join(", ")}\nPreferred genres: ${character.preferredGenres.join(", ")}`
+      ? `The reader's story avatar is:\nName: ${character.name}\nAnime: ${character.anime}\nArchetype: ${character.archetype}\nRole: ${character.role}\nDescription: ${character.description}\nStrengths: ${character.strengths.join(", ")}\nWeaknesses: ${character.weaknesses.join(", ")}\nPreferred genres: ${character.preferredGenres.join(", ")}`
       : "No explicit avatar was provided; infer from traits."
 
     const previousContentSnippet = previousContent
@@ -96,16 +115,27 @@ ${lastChoiceSnippet}
 Continue the story using the avatar as the main character.
 
 Language and style:
-- Write in simple, clear English that anyone can understand.
+- Use only simple, clear English that anyone can understand.
 - Avoid fancy, rare, or poetic words. Prefer everyday vocabulary.
 - Use short, direct sentences (around 10–15 words each).
-- Keep the tone friendly and easy to follow.
+- Keep the tone engaging and easy to follow.
 
-Story guidelines:
+Story length and pacing rules:
+- The entire story must finish in at most 20 chapters/turns.
+- You are now writing chapter number ${chaptersSoFar + 1}.
+- There are ${chaptersRemaining} chapters left before the hard limit of ${maxChapters}.
+- If there are no chapters left, or the story is near a natural ending, you MUST set isStoryComplete = true and write a clear ending.
+
+Moral tone and endings:
+- Choice quality summary so far: ${qualitySummary}.
+- If the reader has made many "bad" choices compared to "good" or "excellent" ones, you should lean toward a darker or negative outcome when the story ends.
+- Do NOT magically turn a long sequence of bad choices into a sweet or perfect ending; consequences should feel real and fair.
+- Good or excellent choices over time can still lead to hopeful or heroic endings.
+
+About this step's content:
 - Use 2-4 short paragraphs for this step.
-- Let the story length be dynamic: early choices should open up the world; later risky or climactic choices should push toward a satisfying conclusion.
-- When the story feels naturally resolved, set isStoryComplete = true and wrap up clearly.
-- Otherwise, set isStoryComplete = false and leave space for more choices.
+- Early chapters should open the world and set up tension.
+- Later risky or climactic choices should push toward a satisfying conclusion that respects the rules above.
 
 About choices:
 - After the new story content, imagine 2-4 meaningful next decisions the avatar could take.
@@ -119,7 +149,7 @@ About evaluating the last choice (if there was one):
 - good: generally wise or kind, aligning with their better traits.
 - average: neutral, safe, or mixed consequences.
 - bad: reckless, unethical, or clearly harmful for the character or others.
-- Provide a short, encouraging message explaining why in "lastChoiceEvaluation.message".
+- Provide a short message explaining why in "lastChoiceEvaluation.message".
 - If there was no previous choice, you may omit lastChoiceEvaluation.
 
 Return ONLY a JSON object matching the provided schema (no extra commentary, no markdown).`,

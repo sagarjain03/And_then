@@ -31,8 +31,8 @@ export default function PersonalityTestPage() {
     const newResponses = { ...responses, [question.id]: optionLabel }
     setResponses(newResponses)
 
-    // Award XP for answering
-    const { newXP } = awardXP(5, "Answered question")
+    // Award XP for answering (persisted per user in MongoDB)
+    void awardXP(5, "Answered question")
     setXpAmount(5)
     setShowXP(true)
 
@@ -71,7 +71,6 @@ export default function PersonalityTestPage() {
     }
 
     const resultToStore = character ? { ...result, character } : result
-    localStorage.setItem("personalityResult", JSON.stringify(resultToStore))
 
     // Persist personality to MongoDB
     try {
@@ -84,19 +83,33 @@ export default function PersonalityTestPage() {
       console.error("Failed to save personality to DB", err)
     }
 
-    // Award completion XP and badge
-    const { newXP, leveledUp } = awardXP(50, "Completed personality test")
-    const badgeUnlocked = unlockBadge("first-test")
+    // Award completion XP and badge (persisted per user in MongoDB)
+    void awardXP(50, "Completed personality test")
+    const badgeUnlocked = await unlockBadge("first-test")
+
+    // Resolve the authenticated user's id so we can navigate to /test/results/[id]
+    let target = "/test/results"
+    try {
+      const profileRes = await fetch("/api/auth/profile")
+      if (profileRes.ok) {
+        const profile = (await profileRes.json()) as { id?: string }
+        if (profile.id) {
+          target = `/test/results/${profile.id}`
+        }
+      }
+    } catch (err) {
+      console.error("Failed to resolve profile for results redirect", err)
+    }
 
     if (badgeUnlocked) {
       const badge = BADGES.find((b) => b.id === "first-test")
       setUnlockedBadge(badge)
       setShowBadge(true)
       setTimeout(() => {
-        router.push("/test/results")
+        router.push(target)
       }, 3500)
     } else {
-      router.push("/test/results")
+      router.push(target)
     }
 
     setIsSavingResult(false)

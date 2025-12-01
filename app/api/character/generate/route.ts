@@ -8,7 +8,10 @@ const google = createGoogleGenerativeAI({
 })
 
 const CharacterSchema = z.object({
+  // Full character name, e.g. "Naruto Uzumaki"
   name: z.string(),
+  // Anime series title, e.g. "Naruto", "Attack on Titan"
+  anime: z.string(),
   archetype: z.string(),
   role: z.string(),
   description: z.string(),
@@ -42,18 +45,23 @@ The user has completed a personality assessment with the following information:
 - Top traits: ${(topTraits || []).join(", ")}
 - Personality summary: ${summary}
 
-Based on this, design a single original fictional character that would strongly resonate with this user as their in-story avatar.
+Your task:
+- Choose ONE existing character from the anime world whose personality, strengths, and weaknesses best match this user.
+- This must be a real character from a published anime series only (for example: "Naruto Uzumaki" from "Naruto", "Levi Ackerman" from "Attack on Titan", "Luffy" from "One Piece", "Light Yagami" from "Death Note", etc.).
+- The character can be a hero, villain, or morally grey, but must be clearly grounded in the user's traits.
+- Do NOT invent a new character or anime. Always pick a real anime character.
 
-Return a concise JSON object describing:
-- name: a distinctive but readable character name
-- archetype: a short phrase like "Thoughtful Strategist" or "Chaotic Explorer"
-- role: how they typically appear in stories (e.g. "reluctant hero", "cunning mentor")
-- description: 3-5 sentences summarizing their personality, style, and vibe
-- strengths: 3-6 short bullet-style strengths
-- weaknesses: 3-6 short bullet-style flaws or vulnerabilities
-- preferredGenres: 3-5 genres from ["fantasy","scifi","mystery","romance","adventure"] that best fit this character
+Return a concise JSON object describing ONLY these fields:
+- name: the character's full name only (no anime name in this field).
+- anime: the anime series title this character is from.
+- archetype: a short phrase like "Thoughtful Strategist" or "Chaotic Explorer" that fits this anime character as matched to the user's traits.
+- role: how they typically appear in stories (e.g. "reluctant hero", "cunning mentor").
+- description: 3-5 sentences summarizing why this specific anime character is a good match for the user's personality, style, and vibe.
+- strengths: 3-6 short bullet-style strengths drawn from that character's canonical behavior.
+- weaknesses: 3-6 short bullet-style flaws or vulnerabilities drawn from that character's canonical behavior.
+- preferredGenres: 3-5 genres from ["fantasy","scifi","mystery","romance","adventure"] that best fit this character's typical stories.
 
-Be vivid and specific but do not include any extra fields beyond the schema.`,
+Be vivid and specific, and strictly limit yourself to real anime characters and series only. Do not include any extra fields beyond the schema.`,
     })
 
     return NextResponse.json({ character: object })

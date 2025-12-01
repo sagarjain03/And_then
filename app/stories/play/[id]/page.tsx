@@ -1,22 +1,24 @@
 "use client"
 
-import { useEffect } from "react"
-import { useRouter } from "next/navigation"
+import { useEffect, useState } from "react"
+import { useRouter, useParams } from "next/navigation"
+import Link from "next/link"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent } from "@/components/ui/card"
+import { type Story, STORY_GENRES } from "@/lib/story-data"
+import { BookOpen, ChevronLeft, Loader2, Volume2 } from "lucide-react"
 
-export default function StoryPlayIndexPage() {
+export default function StoryPlayPage() {
   const router = useRouter()
+  const params = useParams<{ id: string }>()
+  const storyId = params?.id
 
-  useEffect(() => {
-    // If someone hits /stories/play without an id, send them to new story creator.
-    router.replace("/stories/new")
-  }, [router])
-
-  return (
-    <div className="min-h-screen bg-background flex items-center justify-center">
-      <p className="text-muted-foreground">Redirecting to create a new story...</p>
-    </div>
-  )
-}
+  const [story, setStory] = useState<Story | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
+  const [isGeneratingNext, setIsGeneratingNext] = useState(false)
+  const [displayedContent, setDisplayedContent] = useState("")
+  const [isTyping, setIsTyping] = useState(false)
+  const [choiceFeedback, setChoiceFeedback] = useState<
     | {
         quality: "excellent" | "good" | "average" | "bad"
         message: string
@@ -68,7 +70,7 @@ export default function StoryPlayIndexPage() {
     }, 20)
 
     return () => clearInterval(interval)
-  }, [story]) // Updated dependency to story
+  }, [story])
 
   // Auto-hide choice feedback after a short delay
   useEffect(() => {
@@ -78,7 +80,7 @@ export default function StoryPlayIndexPage() {
   }, [choiceFeedback])
 
   const handleChoice = async (choiceIndex: number) => {
-    if (!story) return
+    if (!story || !storyId) return
 
     const selectedChoice = story.choices[choiceIndex]
 
@@ -146,7 +148,7 @@ export default function StoryPlayIndexPage() {
   }
 
   const handleSaveStory = async () => {
-    if (!story) return
+    if (!story || !storyId) return
 
     try {
       const res = await fetch("/api/stories/save", {

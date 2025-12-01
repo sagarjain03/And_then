@@ -38,7 +38,8 @@ export default function LoginPage() {
         return
       }
 
-      // On success, the API sets an HTTP-only cookie. Just navigate to the dashboard.
+      // On success, the API sets an HTTP-only cookie. Just navigate to the dashboard;
+      // the /dashboard page will redirect to /dashboard/:id based on the JWT.
       router.push("/dashboard")
     } catch (err) {
       console.error("Login error", err)

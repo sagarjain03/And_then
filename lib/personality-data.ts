@@ -733,6 +733,8 @@ export interface PersonalityScores {
 
 export interface CharacterProfile {
   name: string
+  /** Anime series this character comes from, e.g. "Naruto", "Attack on Titan" */
+  anime: string
   archetype: string
   role: string
   description: string

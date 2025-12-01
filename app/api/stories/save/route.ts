@@ -18,7 +18,7 @@ export async function POST(request: NextRequest) {
 
     await connectDB()
 
-    const doc = await Story.create({
+    const basePayload = {
       userId,
       title: story.title,
       genre: story.genre,
@@ -30,14 +30,30 @@ export async function POST(request: NextRequest) {
       isStoryComplete: story.isStoryComplete ?? false,
       choiceHistory: story.choiceHistory ?? [],
       savedAt: new Date(),
-    })
+    }
+
+    const storyId: string | undefined = story.id || story._id
+
+    let doc
+    if (storyId) {
+      doc = await Story.findOneAndUpdate({ _id: storyId, userId }, basePayload, {
+        new: true,
+      })
+
+      if (!doc) {
+        // If not found for this user/id, create a fresh one
+        doc = await Story.create(basePayload)
+      }
+    } else {
+      doc = await Story.create(basePayload)
+    }
 
     return NextResponse.json(
       {
         message: "Story saved",
         story: doc,
       },
-      { status: 201 },
+      { status: storyId ? 200 : 201 },
     )
   } catch (error) {
     console.error("Save story error:", error)
