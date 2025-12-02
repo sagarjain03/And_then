@@ -43,6 +43,8 @@ export async function POST(request: NextRequest){
       
     const token = jwt.sign(tokendata, process.env.JWT_SECRET!, { expiresIn: "1d" });
 
+        
+console.log("Gemini key last chars:", process.env.GOOGLE_GENERATIVE_AI_API_KEY ?.slice(-6));
 
        const response =  NextResponse.json({
             message: "Login successful",

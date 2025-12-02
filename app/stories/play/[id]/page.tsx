@@ -27,7 +27,7 @@ const GENRE_MEDIA: Record<string, { bgImage: string; audioSrc: string }> = {
   },
   romance: {
     bgImage: "url('/backgrounds/romance.png')",
-    audioSrc: "/audio/romance.mpeg",
+    audioSrc: "/audio/romantic.mpeg",
   },
   adventure: {
     bgImage: "url('/backgrounds/adventure.png')",
