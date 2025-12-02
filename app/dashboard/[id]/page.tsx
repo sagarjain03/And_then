@@ -12,6 +12,7 @@ import { Progress } from "@/components/ui/progress"
 import { type Story, STORY_GENRES, type PersonalityResult } from "@/lib/story-data"
 import { getDefaultUserStats, fetchUserStats, type UserStats } from "@/lib/gamification"
 import { BookOpen, Plus, Trash2, Play, BarChart3, LogOut, Award, Zap, Trophy } from "lucide-react"
+import { toast } from "sonner"
 
 interface CurrentUser {
   id: string
@@ -101,14 +102,15 @@ export default function DashboardPage() {
     try {
       const res = await fetch(`/api/stories/${id}`, { method: "DELETE" })
       if (!res.ok) {
-        alert("Failed to delete story")
+        toast.error("Failed to delete story")
         return
       }
       const updated = savedStories.filter((s) => (s as any)._id !== id && s.id !== id)
       setSavedStories(updated)
+      toast.success("Story deleted")
     } catch (err) {
       console.error("Delete story error", err)
-      alert("Failed to delete story")
+      toast.error("Failed to delete story")
     }
   }
 

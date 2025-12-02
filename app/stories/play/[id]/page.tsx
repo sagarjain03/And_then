@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { type Story, STORY_GENRES } from "@/lib/story-data"
 import { BookOpen, ChevronLeft, Loader2, Volume2 } from "lucide-react"
+import { toast } from "sonner"
 
 // Map each story genre to a background image and music track.
 // Place the referenced assets in your public/ directory, e.g.
@@ -149,7 +150,7 @@ export default function StoryPlayPage() {
   const handleStartSpeaking = () => {
     if (!story) return
     if (typeof window === "undefined" || !("speechSynthesis" in window)) {
-      alert("Text-to-speech is not supported in this browser.")
+      toast.error("Text-to-speech is not supported in this browser.")
       return
     }
 
@@ -233,7 +234,7 @@ export default function StoryPlayPage() {
       }
     } catch (error) {
       console.error("Error generating next part:", error)
-      alert("Failed to continue story. Please try again.")
+      toast.error("Failed to continue story. Please try again.")
     } finally {
       setIsGeneratingNext(false)
     }
@@ -250,14 +251,14 @@ export default function StoryPlayPage() {
       })
 
       if (!res.ok) {
-        alert("Failed to save story")
+        toast.error("Failed to save story")
         return
       }
 
-      alert("Story saved!")
+      toast.success("Story saved!")
     } catch (err) {
       console.error("Save story error", err)
-      alert("Failed to save story")
+      toast.error("Failed to save story")
     }
   }
 

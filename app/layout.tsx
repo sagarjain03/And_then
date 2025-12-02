@@ -28,6 +28,8 @@ export const metadata: Metadata = {
   },
 }
 
+import AppProviders from "./providers"
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -36,8 +38,10 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <body className={`${orbitron.variable} ${exo2.variable} font-sans antialiased`}>
-        {children}
-        <Analytics />
+        <AppProviders>
+          {children}
+          <Analytics />
+        </AppProviders>
       </body>
     </html>
   )

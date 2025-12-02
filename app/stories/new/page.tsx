@@ -10,6 +10,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { STORY_GENRES } from "@/lib/story-data"
 import type { PersonalityResult } from "@/lib/personality-data"
 import { BookOpen, Loader2 } from "lucide-react"
+import { toast } from "sonner"
 
 export default function NewStoryPage() {
   const router = useRouter()
@@ -82,7 +83,7 @@ export default function NewStoryPage() {
       router.push(`/stories/play/${storyId}`)
     } catch (error) {
       console.error("Error generating story:", error)
-      alert("Failed to generate story. Please try again.")
+      toast.error("Failed to generate story. Please try again.")
     } finally {
       setIsGenerating(false)
     }

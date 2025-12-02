@@ -137,10 +137,6 @@ export default function StoryPlayIndexPage() {
       if (data.lastChoiceEvaluation) {
         setChoiceFeedback(data.lastChoiceEvaluation)
       }
-    } catch (error) {
-      console.error("Error generating next part:", error)
-      alert("Failed to continue story. Please try again.")
-    } finally {
       setIsGeneratingNext(false)
     }
   }
