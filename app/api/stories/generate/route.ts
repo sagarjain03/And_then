@@ -67,7 +67,7 @@ export async function POST(request: NextRequest) {
       .map((entry) => `Step ${entry.segmentIndex + 1}: choice ${entry.choiceId}${entry.quality ? ` (${entry.quality})` : ""}`)
       .join("; ")
 
-    const maxChapters = 20
+    const maxChapters = 25
     const chaptersSoFar = choiceHistory.length
     const chaptersRemaining = Math.max(0, maxChapters - chaptersSoFar)
 

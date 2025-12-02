@@ -23,6 +23,9 @@ export const metadata: Metadata = {
   description:
     "Discover stories tailored to your personality. Take a personality test and step into narratives that adapt to your choices.",
   generator: "sagar Jain",
+  icons: {
+    icon: "/logo.png",
+  },
 }
 
 export default function RootLayout({
