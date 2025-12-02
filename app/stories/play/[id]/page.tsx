@@ -53,6 +53,7 @@ export default function StoryPlayPage() {
   >(null)
   const [isMusicEnabled, setIsMusicEnabled] = useState(true)
   const audioRef = useRef<HTMLAudioElement | null>(null)
+  const [isSpeaking, setIsSpeaking] = useState(false)
 
   const genreMedia = useMemo(() => {
     if (!story) return null
@@ -139,6 +140,30 @@ export default function StoryPlayPage() {
     return () => clearTimeout(timeout)
   }, [choiceFeedback])
 
+  const handleStopSpeaking = () => {
+    if (typeof window === "undefined" || !("speechSynthesis" in window)) return
+    window.speechSynthesis.cancel()
+    setIsSpeaking(false)
+  }
+
+  const handleStartSpeaking = () => {
+    if (!story) return
+    if (typeof window === "undefined" || !("speechSynthesis" in window)) {
+      alert("Text-to-speech is not supported in this browser.")
+      return
+    }
+
+    // Stop any existing speech first
+    window.speechSynthesis.cancel()
+
+    const utterance = new SpeechSynthesisUtterance(story.content)
+    utterance.onend = () => setIsSpeaking(false)
+    utterance.onerror = () => setIsSpeaking(false)
+
+    setIsSpeaking(true)
+    window.speechSynthesis.speak(utterance)
+  }
+
   const handleChoice = async (choiceIndex: number) => {
     if (!story || !storyId) return
 
@@ -198,6 +223,13 @@ export default function StoryPlayPage() {
 
       if (data.lastChoiceEvaluation) {
         setChoiceFeedback(data.lastChoiceEvaluation)
+      }
+
+      if (updatedStory.isStoryComplete) {
+        // Give the player a short moment to see the final text, then go to the completion screen.
+        setTimeout(() => {
+          router.push(`/stories/complete/${storyId}`)
+        }, 1500)
       }
     } catch (error) {
       console.error("Error generating next part:", error)
@@ -310,10 +342,21 @@ export default function StoryPlayPage() {
 
         {/* Story Content */}
         <Card className="border-border mb-8 bg-card/50">
-          <CardContent className="pt-8 pb-8">
-            <div className="prose prose-invert max-w-none">
-              <p className="text-lg leading-relaxed text-foreground whitespace-pre-wrap mb-4">{displayedContent}</p>
+          <CardContent className="pt-8 pb-6">
+            <div className="prose prose-invert max-w-none mb-4">
+              <p className="text-lg leading-relaxed text-foreground whitespace-pre-wrap mb-2">{displayedContent}</p>
               {isTyping && <span className="animate-pulse">▌</span>}
+            </div>
+            <div className="flex items-center justify-end gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                disabled={isTyping}
+                onClick={isSpeaking ? handleStopSpeaking : handleStartSpeaking}
+              >
+                {isSpeaking ? "Stop reading" : "Listen to story"}
+              </Button>
             </div>
           </CardContent>
         </Card>
