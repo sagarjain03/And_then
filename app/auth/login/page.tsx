@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent } from "@/components/ui/card"
 import {toast} from "sonner"
-
+import { signIn } from "next-auth/react"
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? ""
 
 export default function LoginPage() {
@@ -19,6 +19,11 @@ export default function LoginPage() {
   const [password, setPassword] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+
+
+  const handleGoogleSignIn = () => {
+    signIn("google", { callbackUrl: "/dashboard" })
+  }
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -101,9 +106,13 @@ export default function LoginPage() {
               <span className="px-2 bg-background text-muted-foreground">Or continue with</span>
             </div>
           </div>
-
-          <Button variant="outline" className="w-full bg-transparent">
-            Continue with Google
+ <Button
+            variant="outline"
+            className="w-full"
+            onClick={handleGoogleSignIn}
+            type="button"
+          >
+            Sign in with Google
           </Button>
         </CardContent>
       </Card>

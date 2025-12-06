@@ -56,7 +56,7 @@ console.log("Gemini key last chars:", process.env.GOOGLE_GENERATIVE_AI_API_KEY ?
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
             sameSite: 'strict',
-            maxAge: 86400, // 1 day in seconds
+            maxAge: 86400, 
             path: '/'
         })
 

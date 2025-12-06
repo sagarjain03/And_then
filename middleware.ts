@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
 
-// Paths that require the user to be logged in (must have a JWT "token" cookie).
+
 const PROTECTED_PATHS = [
   "/dashboard",
   "/test",
