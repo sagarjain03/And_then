@@ -45,7 +45,6 @@ app/
 lib/
 ├── personality-data.ts     # Personality test data and scoring
 ├── story-data.ts           # Story genres and generation logic
-├── db-schema.sql           # Database schema
 └── db-utils.ts             # Database utility functions
 \`\`\`
 
