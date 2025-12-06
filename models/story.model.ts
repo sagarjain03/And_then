@@ -31,6 +31,7 @@ const StorySchema = new Schema(
         quality: String,
       },
     ],
+    isMultiplayer: { type: Boolean, default: false },
     savedAt: { type: Date, default: Date.now },
   },
   { timestamps: true },

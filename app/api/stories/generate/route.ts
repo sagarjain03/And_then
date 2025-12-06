@@ -43,6 +43,7 @@ interface GenerateBody {
     choiceId: string
     quality?: ChoiceQuality
   }>
+  isMultiplayer?: boolean
 }
 
 export async function POST(request: NextRequest) {
@@ -52,7 +53,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = (await request.json()) as GenerateBody
-    const { genreId, personalityTraits, character, previousContent, lastChoice, choiceHistory = [] } = body
+    const { genreId, personalityTraits, character, previousContent, lastChoice, choiceHistory = [], isMultiplayer = false } = body
 
     const genre = getGenreById(genreId)
     if (!genre) {
@@ -112,7 +113,9 @@ ${previousContentSnippet}
 
 ${lastChoiceSnippet}
 
-Continue the story using the avatar as the main character.
+${isMultiplayer 
+  ? `IMPORTANT: Write the story in SECOND PERSON (using "you", "your", "you're", etc.). The reader is the main character. Examples: "You find yourself in a dark forest...", "You notice something strange...", "Your heart races as you...". Never use first person (I, me, my) or third person (he, she, they) - always use second person.`
+  : `Continue the story using the avatar as the main character.`}
 
 Language and style:
 - Use only simple, clear English that anyone can understand.

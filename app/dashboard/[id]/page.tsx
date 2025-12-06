@@ -11,7 +11,7 @@ import { AnimatedGrid } from "@/components/ui/animated-grid"
 import { Progress } from "@/components/ui/progress"
 import { type Story, STORY_GENRES, type PersonalityResult } from "@/lib/story-data"
 import { getDefaultUserStats, fetchUserStats, type UserStats } from "@/lib/gamification"
-import { BookOpen, Plus, Trash2, Play, BarChart3, LogOut, Award, Zap, Trophy } from "lucide-react"
+import { BookOpen, Plus, Trash2, Play, BarChart3, LogOut, Award, Zap, Trophy, Users } from "lucide-react"
 import { toast } from "sonner"
 
 interface CurrentUser {
@@ -251,9 +251,10 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-6 mb-12">
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
           {[
             { href: "/stories/new", icon: Plus, title: "NEW STORY", description: "Generate a personalized story" },
+            { href: "/stories/multiplayer", icon: Users, title: "MULTIPLAYER", description: "Play stories with friends" },
             {
               href: currentUser ? `/test/results/${currentUser.id}` : "/test/results",
               icon: BarChart3,
