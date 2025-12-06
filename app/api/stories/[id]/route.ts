@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { getDataFromToken } from "@/helpers/getDataFromToken"
 import { connectDB } from "@/db/dbconfig"
 import Story from "@/models/story.model"
+import Room from "@/models/room.model"
 
 interface RouteContext {
   params: Promise<{ id: string }>
@@ -18,7 +19,25 @@ export async function GET(request: NextRequest, context: RouteContext) {
 
     await connectDB()
 
-    const story = await Story.findOne({ _id: id, userId }).lean()
+    // First, try to find story owned by user
+    let story = await Story.findOne({ _id: id, userId }).lean()
+    
+    // If not found, check if user is a participant in a multiplayer room with this story
+    if (!story) {
+      const room = await Room.findOne({ 
+        storyId: id,
+        $or: [
+          { hostId: userId },
+          { participants: userId }
+        ]
+      }).lean()
+      
+      if (room) {
+        // User is part of a room with this story, allow access
+        story = await Story.findOne({ _id: id }).lean()
+      }
+    }
+    
     if (!story) {
       return NextResponse.json({ error: "Story not found" }, { status: 404 })
     }
