@@ -23,7 +23,21 @@ export default function SignupPage() {
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault()
+    // Validate username
+    if (!username.trim()) {
+      setError("Username is required")
+      return
+    }
 
+    if (username.length < 3) {
+      setError("Username must be at least 3 characters")
+      return
+    }
+
+    if (!/^[a-zA-Z0-9_-]+$/.test(username)) {
+      setError("Username can only contain letters, numbers, underscores, and hyphens")
+      return
+    }
     if (password !== confirmPassword) {
       setError("Passwords do not match")
       return
@@ -31,6 +45,22 @@ export default function SignupPage() {
 
     setIsLoading(true)
     setError(null)
+
+    // Validate email format
+    const emailRegex = /^[^\s@]+@gmail\.com$/
+    if (!emailRegex.test(email)) {
+      setError("Please enter a valid email address")
+      setIsLoading(false)
+      return
+    }
+
+    // Validate password strength
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/
+    if (!passwordRegex.test(password)) {
+      setError("Password must be at least 8 characters with uppercase, lowercase, number, and special character")
+      setIsLoading(false)
+      return
+    }
 
     try {
       const res = await fetch(`${API_BASE_URL || ""}/api/auth/register`, {
