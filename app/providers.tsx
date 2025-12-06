@@ -7,7 +7,7 @@ export default function AppProviders({ children }: { children: React.ReactNode }
   return (
     <>
       {children}
-      <Toaster richColors closeButton position="top-center" />
+      <Toaster richColors closeButton position="top-right" />
     </>
   )
 }

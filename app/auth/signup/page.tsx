@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent } from "@/components/ui/card"
+import {toast} from "sonner"
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? ""
 
@@ -77,6 +78,7 @@ export default function SignupPage() {
       }
 
       // After successful signup, send the user to login
+      toast.success("Account created successfully! Please log in.")
       router.push("/auth/login")
     } catch (err) {
       console.error("Signup error", err)

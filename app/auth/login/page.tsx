@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent } from "@/components/ui/card"
+import {toast} from "sonner"
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? ""
 
@@ -38,8 +39,7 @@ export default function LoginPage() {
         return
       }
 
-      // On success, the API sets an HTTP-only cookie. Just navigate to the dashboard;
-      // the /dashboard page will redirect to /dashboard/:id based on the JWT.
+      toast.success("Logged in successfully!")
       router.push("/dashboard")
     } catch (err) {
       console.error("Login error", err)
