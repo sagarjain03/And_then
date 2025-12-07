@@ -22,7 +22,8 @@ export default function LoginPage() {
 
 
   const handleGoogleSignIn = () => {
-    signIn("google", { callbackUrl: "/dashboard" })
+    // signIn("google", { callbackUrl: "/dashboard" })
+    toast.error("Google Sign-In is currently unavailable.")
   }
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -126,3 +127,6 @@ export default function LoginPage() {
     </div>
   )
 }
+
+
+
