@@ -1,15 +1,24 @@
 import { redirect } from "next/navigation"
-import { getServerSession } from "next-auth"
-import { authOptions } from "../api/auth/[...nextauth]/route"
+import { cookies } from "next/headers"
+import jwt from "jsonwebtoken"
+import type { DecodedToken } from "@/types/decodedToken"
 
 export default async function DashboardIndexRedirect() {
-  const session = await getServerSession(authOptions)
+  const cookieStore = await cookies()
+  const token = cookieStore.get("token")?.value
 
-  if (!session) {
+  if (!token) {
     redirect("/auth/login")
   }
 
-  const userId = (session.user as any)?.id ?? (session.user as any)?.email
+  let userId: string | null = null
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as DecodedToken
+    userId = decoded.id
+  } catch {
+    // Invalid token, send user to login
+    redirect("/auth/login")
+  }
 
   if (!userId) {
     redirect("/auth/login")
