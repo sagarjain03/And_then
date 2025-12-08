@@ -107,7 +107,7 @@ graph LR
     D --> E[📚 Choose Genre]
     E --> F[🎮 Play Story]
     F --> G{Make Choice}
-    G --> F
+    G --> F{Nothing Much}
     G --> H[🎉 Story Complete]
     H --> I[📈 Dashboard]
 ```
