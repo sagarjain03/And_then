@@ -2,35 +2,18 @@
 
 import { motion } from "framer-motion"
 import Link from "next/link"
-import { NeonCard } from "@/components/ui/neon-card"
+import { StorytellerCard } from "@/components/ui/storyteller-card"
 import { NeonButton } from "@/components/ui/neon-button"
-import { Users, Lock, Globe } from "lucide-react"
-import { AnimatedGrid } from "@/components/ui/animated-grid"
+import { Users, Lock, Globe, Feather, ArrowLeft } from "lucide-react"
 
 export default function MultiplayerPage() {
   return (
-    <div className="min-h-screen bg-background relative overflow-hidden">
-      <div className="fixed inset-0 z-0">
-        <motion.div
-          style={{
-            backgroundImage: "url('/cyberpunk-neon-city-skyline-night.jpg')",
-            backgroundSize: "cover",
-            backgroundPosition: "center",
-          }}
-          animate={{
-            scale: [1, 1.1, 1],
-          }}
-          transition={{
-            duration: 20,
-            repeat: Number.POSITIVE_INFINITY,
-            ease: "easeInOut",
-          }}
-          className="absolute inset-0 opacity-15"
-        />
-        <div className="absolute inset-0 bg-gradient-to-b from-background/90 via-background/80 to-background/95" />
-      </div>
+    <div className="min-h-screen bg-parchment text-[#2a1a10] relative overflow-hidden font-serif">
+      {/* Background Texture */}
+      <div className="fixed inset-0 pointer-events-none opacity-50 z-0 bg-[url('https://www.transparenttextures.com/patterns/aged-paper.png')]"></div>
 
-      <AnimatedGrid />
+      {/* Decorative Book Binding Effect */}
+      <div className="hidden lg:block fixed left-0 top-0 bottom-0 w-16 bg-gradient-to-r from-[#2a1a10]/10 to-transparent pointer-events-none"></div>
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-32 relative z-10">
         {/* Header */}
@@ -43,15 +26,15 @@ export default function MultiplayerPage() {
             initial={{ scale: 0.8 }}
             animate={{ scale: 1 }}
             transition={{ delay: 0.2 }}
-            className="flex justify-center mb-4"
+            className="flex justify-center mb-6"
           >
-            <div className="w-16 h-16 rounded-lg bg-primary flex items-center justify-center">
-              <Users className="w-8 h-8 text-primary-foreground" />
+            <div className="w-20 h-20 rounded-full bg-[#f4e4bc] flex items-center justify-center border-2 border-[#d4af37]/30 shadow-book">
+              <Users className="w-10 h-10 text-[#8b4513]" />
             </div>
           </motion.div>
-          <h1 className="text-4xl sm:text-5xl font-display font-bold mb-4 text-glow-violet">MULTIPLAYER</h1>
-          <p className="text-lg text-foreground/60">
-            Play stories together with friends or join public rooms
+          <h1 className="text-4xl sm:text-5xl font-bold mb-4 text-[#2a1a10]">The Fellowship</h1>
+          <p className="text-xl text-[#5c4033] italic font-serif">
+            Weave tales together with friends or join public chroniclers.
           </p>
         </motion.div>
 
@@ -62,20 +45,20 @@ export default function MultiplayerPage() {
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.3 }}
           >
-            <NeonCard glowColor="violet" className="text-center h-full cursor-pointer">
-              <div className="w-16 h-16 rounded-lg bg-primary/10 flex items-center justify-center mx-auto mb-6 border border-primary/30">
-                <Lock className="w-8 h-8 text-primary" />
-              </div>
-              <h3 className="text-2xl font-display font-bold mb-4 uppercase tracking-wide">CREATE ROOM</h3>
-              <p className="text-sm text-foreground/60 mb-6">
-                Create a room and invite friends to play together
-              </p>
-              <Link href="/stories/multiplayer/create" className="w-full">
-                <NeonButton glowColor="violet" className="w-full">
+            <Link href="/stories/multiplayer/create" className="block h-full">
+              <StorytellerCard className="text-center h-full hover:shadow-book transition-all hover:scale-[1.02] border-light bg-white/80 cursor-pointer group">
+                <div className="w-16 h-16 rounded-full bg-[#f4e4bc] flex items-center justify-center mx-auto mb-6 border border-[#d4af37]/30 group-hover:bg-[#d4af37]/10 transition-colors">
+                  <Lock className="w-8 h-8 text-[#8b4513]" />
+                </div>
+                <h3 className="text-2xl font-bold mb-4 text-[#2a1a10] uppercase tracking-wide">Form a Coterie</h3>
+                <p className="text-sm text-[#5c4033] italic mb-6">
+                  Create a private room and invite friends to write together.
+                </p>
+                <NeonButton glowColor="gold" className="w-full pointer-events-none">
                   Create Room
                 </NeonButton>
-              </Link>
-            </NeonCard>
+              </StorytellerCard>
+            </Link>
           </motion.div>
 
           <motion.div
@@ -83,20 +66,20 @@ export default function MultiplayerPage() {
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.4 }}
           >
-            <NeonCard glowColor="cyan" className="text-center h-full cursor-pointer">
-              <div className="w-16 h-16 rounded-lg bg-secondary/10 flex items-center justify-center mx-auto mb-6 border border-secondary/30">
-                <Globe className="w-8 h-8 text-secondary" />
-              </div>
-              <h3 className="text-2xl font-display font-bold mb-4 uppercase tracking-wide">JOIN ROOM</h3>
-              <p className="text-sm text-foreground/60 mb-6">
-                Join an existing room and play with friends
-              </p>
-              <Link href="/stories/multiplayer/join" className="w-full">
-                <NeonButton glowColor="cyan" className="w-full">
+            <Link href="/stories/multiplayer/join" className="block h-full">
+              <StorytellerCard className="text-center h-full hover:shadow-book transition-all hover:scale-[1.02] border-light bg-white/80 cursor-pointer group">
+                <div className="w-16 h-16 rounded-full bg-[#f4e4bc] flex items-center justify-center mx-auto mb-6 border border-[#d4af37]/30 group-hover:bg-[#d4af37]/10 transition-colors">
+                  <Globe className="w-8 h-8 text-[#8b4513]" />
+                </div>
+                <h3 className="text-2xl font-bold mb-4 text-[#2a1a10] uppercase tracking-wide">Join a Guild</h3>
+                <p className="text-sm text-[#5c4033] italic mb-6">
+                  Join an existing room and weave your threads into the story.
+                </p>
+                <NeonButton glowColor="gold" className="w-full bg-transparent border-[#d4af37]/50 text-[#8b4513] hover:bg-[#d4af37]/10 pointer-events-none">
                   Join Room
                 </NeonButton>
-              </Link>
-            </NeonCard>
+              </StorytellerCard>
+            </Link>
           </motion.div>
         </div>
 
@@ -108,9 +91,10 @@ export default function MultiplayerPage() {
           className="flex justify-center"
         >
           <Link href="/dashboard">
-            <NeonButton glowColor="blue" className="bg-transparent border border-primary/30 hover:bg-primary/10">
-              Back to Dashboard
-            </NeonButton>
+            <button className="flex items-center gap-2 text-[#8b4513] hover:text-[#2a1a10] transition-colors font-serif font-bold uppercase tracking-wider text-sm px-6 py-3 border border-[#d4af37]/30 rounded-full hover:bg-[#d4af37]/10">
+              <ArrowLeft className="w-4 h-4" />
+              Return to Library
+            </button>
           </Link>
         </motion.div>
       </div>

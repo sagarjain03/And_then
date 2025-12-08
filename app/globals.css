@@ -1,150 +1,110 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
+@plugin "tailwindcss-animate";
+
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  /* Deep black and neon theme for futuristic gaming aesthetic */
-  --primary: oklch(0.65 0.3 260); /* Neon violet */
-  --primary-foreground: oklch(0.98 0.01 0);
+  --font-display: "Orbitron", system-ui, sans-serif;
+  --font-mono: "Geist Mono", "Geist Mono Fallback";
 
-  --background: oklch(0.98 0.01 0);
-  --foreground: oklch(0.15 0.02 260);
+  /* Storyteller Theme Colors (Light - Parchment) */
+  --background: #f4e4bc;
+  --foreground: #2a1a10;
 
-  --card: oklch(0.99 0.01 0);
-  --card-foreground: oklch(0.15 0.02 260);
+  --card: #fff8e7;
+  --card-foreground: #2a1a10;
 
-  --popover: oklch(0.99 0.01 0);
-  --popover-foreground: oklch(0.15 0.02 260);
+  --popover: #fff8e7;
+  --popover-foreground: #2a1a10;
 
-  --secondary: oklch(0.7 0.25 195); /* Neon cyan */
-  --secondary-foreground: oklch(0.98 0.01 0);
+  --primary: #8b4513;
+  --primary-foreground: #f4e4bc;
 
-  --muted: oklch(0.92 0.01 0);
-  --muted-foreground: oklch(0.5 0.02 260);
+  --secondary: #d4af37;
+  --secondary-foreground: #2a1a10;
 
-  --accent: oklch(0.65 0.28 220); /* Neon blue */
-  --accent-foreground: oklch(0.98 0.01 0);
+  --muted: #e6d2a0;
+  --muted-foreground: #5c4033;
 
-  --destructive: oklch(0.58 0.25 27);
-  --destructive-foreground: oklch(0.98 0.01 0);
+  --accent: #d4af37;
+  --accent-foreground: #2a1a10;
 
-  --border: oklch(0.9 0.01 0);
-  --input: oklch(0.95 0.01 0);
+  --destructive: #8a2be2;
+  --destructive-foreground: #f4e4bc;
 
-  --ring: oklch(0.65 0.3 260);
-
-  --chart-1: oklch(0.65 0.3 260);
-  --chart-2: oklch(0.7 0.25 195);
-  --chart-3: oklch(0.65 0.28 220);
-  --chart-4: oklch(0.6 0.22 340);
-  --chart-5: oklch(0.75 0.18 120);
+  --border: #d4af37;
+  --input: #e6d2a0;
+  --ring: #d4af37;
 
   --radius: 0.5rem;
 
-  --sidebar: oklch(0.99 0.01 0);
-  --sidebar-foreground: oklch(0.15 0.02 260);
-  --sidebar-primary: oklch(0.65 0.3 260);
-  --sidebar-primary-foreground: oklch(0.98 0.01 0);
-  --sidebar-accent: oklch(0.7 0.25 195);
-  --sidebar-accent-foreground: oklch(0.98 0.01 0);
-  --sidebar-border: oklch(0.9 0.01 0);
-  --sidebar-ring: oklch(0.65 0.3 260);
+  --chart-1: #8b4513;
+  --chart-2: #d4af37;
+  --chart-3: #5c4033;
+  --chart-4: #e6d2a0;
+  --chart-5: #2a1a10;
+
+  --sidebar: #f4e4bc;
+  --sidebar-foreground: #2a1a10;
+  --sidebar-primary: #8b4513;
+  --sidebar-primary-foreground: #f4e4bc;
+  --sidebar-accent: #e6d2a0;
+  --sidebar-accent-foreground: #2a1a10;
+  --sidebar-border: #d4af37;
+  --sidebar-ring: #d4af37;
 }
 
 .dark {
-  /* Pure black background with vibrant neon accents */
-  --primary: oklch(0.75 0.35 260); /* Bright neon violet */
-  --primary-foreground: oklch(0.05 0.01 0);
+  /* Storyteller Theme Colors (Dark - Leather) */
+  --background: #1a0b05;
+  --foreground: #d4af37;
 
-  --background: oklch(0.05 0.01 0); /* Deep black */
-  --foreground: oklch(0.98 0.01 0); /* Pure white text */
+  --card: #2a1a10;
+  --card-foreground: #d4af37;
 
-  --card: oklch(0.08 0.02 260); /* Slightly lighter black with violet tint */
-  --card-foreground: oklch(0.98 0.01 0);
+  --popover: #2a1a10;
+  --popover-foreground: #d4af37;
 
-  --popover: oklch(0.08 0.02 260);
-  --popover-foreground: oklch(0.98 0.01 0);
+  --primary: #d4af37;
+  --primary-foreground: #1a0b05;
 
-  --secondary: oklch(0.75 0.3 195); /* Bright neon cyan */
-  --secondary-foreground: oklch(0.05 0.01 0);
+  --secondary: #8b4513;
+  --secondary-foreground: #d4af37;
 
-  --muted: oklch(0.15 0.02 260);
-  --muted-foreground: oklch(0.6 0.02 260);
+  --muted: #4a3b2a;
+  --muted-foreground: #a69b8a;
 
-  --accent: oklch(0.7 0.32 220); /* Bright neon blue */
-  --accent-foreground: oklch(0.05 0.01 0);
+  --accent: #8b4513;
+  --accent-foreground: #d4af37;
 
-  --destructive: oklch(0.65 0.3 27);
-  --destructive-foreground: oklch(0.98 0.01 0);
+  --destructive: #7f1d1d;
+  --destructive-foreground: #d4af37;
 
-  --border: oklch(0.2 0.05 260); /* Subtle violet border */
-  --input: oklch(0.12 0.02 260);
+  --border: #8b4513;
+  --input: #4a3b2a;
+  --ring: #d4af37;
 
-  --ring: oklch(0.75 0.35 260);
+  --chart-1: #d4af37;
+  --chart-2: #8b4513;
+  --chart-3: #a69b8a;
+  --chart-4: #4a3b2a;
+  --chart-5: #1a0b05;
 
-  --chart-1: oklch(0.75 0.35 260);
-  --chart-2: oklch(0.75 0.3 195);
-  --chart-3: oklch(0.7 0.32 220);
-  --chart-4: oklch(0.68 0.28 340);
-  --chart-5: oklch(0.72 0.26 120);
-
-  --sidebar: oklch(0.08 0.02 260);
-  --sidebar-foreground: oklch(0.98 0.01 0);
-  --sidebar-primary: oklch(0.75 0.35 260);
-  --sidebar-primary-foreground: oklch(0.05 0.01 0);
-  --sidebar-accent: oklch(0.75 0.3 195);
-  --sidebar-accent-foreground: oklch(0.05 0.01 0);
-  --sidebar-border: oklch(0.2 0.05 260);
-  --sidebar-ring: oklch(0.75 0.35 260);
-
-  /* Custom neon glow colors for effects */
-  --neon-violet: oklch(0.75 0.35 260);
-  --neon-cyan: oklch(0.75 0.3 195);
-  --neon-blue: oklch(0.7 0.32 220);
+  --sidebar: #1a0b05;
+  --sidebar-foreground: #d4af37;
+  --sidebar-primary: #d4af37;
+  --sidebar-primary-foreground: #1a0b05;
+  --sidebar-accent: #4a3b2a;
+  --sidebar-accent-foreground: #d4af37;
+  --sidebar-border: #8b4513;
+  --sidebar-ring: #d4af37;
 }
 
-@theme inline {
-  /* Updated font variables for futuristic fonts */
-  --font-sans: var(--font-exo2), "Exo 2", system-ui, sans-serif;
-  --font-display: var(--font-orbitron), "Orbitron", system-ui, sans-serif;
+@theme {
+  --font-display: "Orbitron", system-ui, sans-serif;
   --font-mono: "Geist Mono", "Geist Mono Fallback";
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --color-card: var(--card);
-  --color-card-foreground: var(--card-foreground);
-  --color-popover: var(--popover);
-  --color-popover-foreground: var(--popover-foreground);
-  --color-primary: var(--primary);
-  --color-primary-foreground: var(--primary-foreground);
-  --color-secondary: var(--secondary);
-  --color-secondary-foreground: var(--secondary-foreground);
-  --color-muted: var(--muted);
-  --color-muted-foreground: var(--muted-foreground);
-  --color-accent: var(--accent);
-  --color-accent-foreground: var(--accent-foreground);
-  --color-destructive: var(--destructive);
-  --color-destructive-foreground: var(--destructive-foreground);
-  --color-border: var(--border);
-  --color-input: var(--input);
-  --color-ring: var(--ring);
-  --color-chart-1: var(--chart-1);
-  --color-chart-2: var(--chart-2);
-  --color-chart-3: var(--chart-3);
-  --color-chart-4: var(--chart-4);
-  --color-chart-5: var(--chart-5);
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
-  --color-sidebar: var(--sidebar);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-ring: var(--sidebar-ring);
 }
 
 /* Added utility class for display font */
@@ -154,62 +114,59 @@
 
 @layer base {
   * {
-    @apply border-border outline-ring/50;
+    border-color: hsl(var(--border));
+    outline-color: hsl(var(--ring) / 0.5);
   }
+
   body {
-    @apply bg-background text-foreground;
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+    transition: background-color 0.3s, color 0.3s;
   }
 }
 
-/* Custom neon glow effects for futuristic UI */
+/* Storyteller Theme Utilities */
 @layer utilities {
-  .glow-violet {
-    box-shadow: 0 0 20px rgba(147, 51, 234, 0.5), 0 0 40px rgba(147, 51, 234, 0.3);
+  .bg-parchment {
+    background-color: #f4e4bc;
+    background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.6' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100' height='100' filter='url(%23noise)' opacity='0.05'/%3E%3C/svg%3E");
   }
 
-  .glow-cyan {
-    box-shadow: 0 0 20px rgba(6, 182, 212, 0.5), 0 0 40px rgba(6, 182, 212, 0.3);
+  .text-gold {
+    color: #d4af37;
   }
 
-  .glow-blue {
-    box-shadow: 0 0 20px rgba(59, 130, 246, 0.5), 0 0 40px rgba(59, 130, 246, 0.3);
+  .border-gold {
+    border-color: #d4af37;
+  }
+
+  .shadow-warm {
+    box-shadow: 0 4px 20px -2px rgba(42, 26, 16, 0.1);
+  }
+
+  .shadow-book {
+    box-shadow:
+      2px 0 0 0 rgba(255, 255, 255, 0.2) inset,
+      -2px 0 0 0 rgba(0, 0, 0, 0.1) inset,
+      0 10px 20px -5px rgba(0, 0, 0, 0.3);
+  }
+
+  .text-glow-gold {
+    text-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
+  }
+
+  /* Light border effect requested by user */
+  .border-light {
+    border: 1px solid rgba(212, 175, 55, 0.3);
+    box-shadow: 0 0 0 1px rgba(212, 175, 55, 0.1);
+  }
+
+  /* Utilities for glow effects (Cyberpunk inheritance or new magical glow) */
+  .text-glow-cyan {
+    text-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
   }
 
   .text-glow-violet {
-    text-shadow: 0 0 10px rgba(147, 51, 234, 0.8), 0 0 20px rgba(147, 51, 234, 0.5);
+    text-shadow: 0 0 10px rgba(138, 43, 226, 0.5);
   }
-
-  .text-glow-cyan {
-    text-shadow: 0 0 10px rgba(6, 182, 212, 0.8), 0 0 20px rgba(6, 182, 212, 0.5);
-  }
-
-  .text-glow-blue {
-    text-shadow: 0 0 10px rgba(59, 130, 246, 0.8), 0 0 20px rgba(59, 130, 246, 0.5);
-  }
-
-  .border-glow-violet {
-    border-color: rgba(147, 51, 234, 0.5);
-    box-shadow: inset 0 0 10px rgba(147, 51, 234, 0.3), 0 0 10px rgba(147, 51, 234, 0.3);
-  }
-
-  .border-glow-cyan {
-    border-color: rgba(6, 182, 212, 0.5);
-    box-shadow: inset 0 0 10px rgba(6, 182, 212, 0.3), 0 0 10px rgba(6, 182, 212, 0.3);
-  }
-
-  .bg-grid-pattern {
-    background-image: linear-gradient(rgba(147, 51, 234, 0.1) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(147, 51, 234, 0.1) 1px, transparent 1px);
-    background-size: 50px 50px;
-  }
-}
-
-/* Hidden scrollbar for book pages - immersive reading experience */
-.custom-scrollbar {
-  scrollbar-width: none; /* Firefox */
-  -ms-overflow-style: none; /* IE and Edge */
-}
-
-.custom-scrollbar::-webkit-scrollbar {
-  display: none; /* Chrome, Safari, Opera */
 }

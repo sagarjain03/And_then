@@ -5,11 +5,12 @@ import React from "react"
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
+import { NeonButton } from "@/components/ui/neon-button"
+import { StorytellerCard } from "@/components/ui/storyteller-card"
 import { STORY_GENRES } from "@/lib/story-data"
 import type { PersonalityResult } from "@/lib/personality-data"
-import { BookOpen, Loader2 } from "lucide-react"
+import { BookOpen, Loader2, ArrowLeft, Feather } from "lucide-react"
+import { motion } from "framer-motion"
 import { toast } from "sonner"
 
 export default function NewStoryPage() {
@@ -91,74 +92,116 @@ export default function NewStoryPage() {
 
   if (!personalityResult) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center px-4">
-        <Card className="w-full max-w-md border-border">
-          <CardContent className="pt-8 pb-8 text-center space-y-4">
-            <p className="text-muted-foreground">Please complete your personality test first.</p>
+      <div className="min-h-screen bg-parchment flex items-center justify-center px-4">
+        <div className="fixed inset-0 pointer-events-none opacity-50 z-0 bg-[url('https://www.transparenttextures.com/patterns/aged-paper.png')]"></div>
+        <StorytellerCard className="w-full max-w-md relative z-10 bg-white/80">
+          <div className="text-center space-y-6 py-8">
+            <div className="w-16 h-16 mx-auto rounded-full bg-[#f4e4bc] flex items-center justify-center border-2 border-[#d4af37]/30">
+              <BookOpen className="w-8 h-8 text-[#8b4513]" />
+            </div>
+            <p className="text-[#5c4033] font-serif">Please complete your personality test first to unlock your story.</p>
             <Link href="/test">
-              <Button className="w-full">Take Personality Test</Button>
+              <NeonButton glowColor="gold" className="w-full">Take Personality Test</NeonButton>
             </Link>
-          </CardContent>
-        </Card>
+          </div>
+        </StorytellerCard>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-background py-8 px-4">
-      <div className="max-w-4xl mx-auto">
+    <div className="min-h-screen bg-parchment py-12 px-4 relative overflow-x-hidden text-[#2a1a10]">
+      {/* Background */}
+      <div className="fixed inset-0 pointer-events-none opacity-50 z-0 bg-[url('https://www.transparenttextures.com/patterns/aged-paper.png')]"></div>
+
+      <div className="max-w-6xl mx-auto relative z-10">
         {/* Header */}
         <div className="text-center mb-12">
-          <div className="flex justify-center mb-4">
-            <div className="w-16 h-16 rounded-lg bg-primary flex items-center justify-center">
-              <BookOpen className="w-8 h-8 text-primary-foreground" />
+          <motion.div
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            className="flex justify-center mb-6"
+          >
+            <div className="w-20 h-20 rounded-full bg-[#f4e4bc] flex items-center justify-center border-2 border-[#d4af37]/30 shadow-book">
+              <BookOpen className="w-10 h-10 text-[#8b4513]" />
             </div>
-          </div>
-          <h1 className="text-4xl font-bold mb-4">Choose Your Story Genre</h1>
-          <p className="text-lg text-muted-foreground">
-            Select a genre and we'll generate a personalized story tailored to your personality
-          </p>
+          </motion.div>
+          <motion.h1
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-4xl md:text-5xl font-serif font-bold mb-4 text-[#2a1a10]"
+          >
+            Choose Your Tale
+          </motion.h1>
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.2 }}
+            className="text-lg text-[#5c4033] font-serif italic max-w-2xl mx-auto"
+          >
+            Select a genre, and the ink will begin to flow, weaving a story unique to your soul.
+          </motion.p>
         </div>
 
         {/* Genre Selection */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-          {STORY_GENRES.map((genre) => (
-            <button
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
+          {STORY_GENRES.map((genre, index) => (
+            <motion.button
               key={genre.id}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 + index * 0.1 }}
               onClick={() => setSelectedGenre(genre.id)}
-              className={`text-left transition-all ${
-                selectedGenre === genre.id ? "ring-2 ring-primary scale-105" : "hover:border-primary/50"
-              }`}
+              className={`text-left group transition-all duration-300 transform perspective-1000`}
             >
-              <Card className="border-border h-full cursor-pointer">
-                <CardContent className="pt-6">
-                  <div className="text-4xl mb-4">{genre.icon}</div>
-                  <h3 className="text-xl font-bold mb-2">{genre.name}</h3>
-                  <p className="text-sm text-muted-foreground">{genre.description}</p>
-                </CardContent>
-              </Card>
-            </button>
+              <StorytellerCard
+                className={`h-full transition-all duration-300 ${selectedGenre === genre.id
+                    ? "border-[#d4af37] ring-4 ring-[#d4af37]/20 scale-105 bg-white shadow-xl"
+                    : "bg-white/60 hover:bg-white hover:-translate-y-2 hover:shadow-lg"
+                  }`}
+              >
+                <div className="p-2">
+                  <div className="text-4xl mb-4 transform transition-transform group-hover:scale-110 duration-300">{genre.icon}</div>
+                  <h3 className="text-2xl font-serif font-bold mb-3 text-[#2a1a10] group-hover:text-[#8b4513] transition-colors">{genre.name}</h3>
+                  <p className="text-sm text-[#5c4033] font-serif leading-relaxed line-clamp-3">{genre.description}</p>
+                </div>
+              </StorytellerCard>
+            </motion.button>
           ))}
         </div>
 
         {/* Action Buttons */}
-        <div className="flex gap-4 justify-center">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.8 }}
+          className="flex flex-col sm:flex-row gap-6 justify-center items-center"
+        >
           <Link href="/dashboard">
-            <Button variant="outline" className="bg-transparent">
-              Back to Dashboard
-            </Button>
+            <button className="flex items-center gap-2 text-[#5c4033] hover:text-[#2a1a10] font-serif font-bold uppercase tracking-wider transition-colors px-6 py-3 rounded-full hover:bg-[#2a1a10]/5">
+              <ArrowLeft className="w-4 h-4" />
+              Return to Archive
+            </button>
           </Link>
-          <Button onClick={handleGenerateStory} disabled={!selectedGenre || isGenerating} size="lg">
+          <NeonButton
+            onClick={handleGenerateStory}
+            disabled={!selectedGenre || isGenerating}
+            glowColor="gold"
+            className="text-lg px-12 py-4"
+          >
             {isGenerating ? (
               <>
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                Generating Story...
+                <Loader2 className="w-5 h-5 mr-3 animate-spin" />
+                Weaving Story...
               </>
             ) : (
-              "Generate Story"
+              <>
+                <Feather className="w-5 h-5 mr-3" />
+                Begin Narrative
+              </>
             )}
-          </Button>
-        </div>
+          </NeonButton>
+        </motion.div>
       </div>
     </div>
   )

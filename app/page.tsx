@@ -1,236 +1,234 @@
-"use client"
-import Link from "next/link"
-import { motion, useScroll, useTransform } from "framer-motion"
-import { NeonButton } from "@/components/ui/neon-button"
-import { NeonCard } from "@/components/ui/neon-card"
-import { AnimatedGrid } from "@/components/ui/animated-grid"
-import {  Sparkles, Users, Zap, ChevronRight } from "lucide-react"
+"use client";
+import React, { useEffect } from "react";
+import Link from "next/link";
+import { motion, useAnimate, stagger } from "framer-motion";
+import { cn } from "@/lib/utils";
+import { Play, ArrowRight, Sparkles as SparklesIcon, Menu } from "lucide-react";
 
-export default function LandingPage() {
-  const { scrollY } = useScroll()
-  const heroY = useTransform(scrollY, [0, 500], [0, 150])
-  // const heroOpacity = useTransform(scrollY, [0, 300], [1, 0])
-
+export default function GhibliHomePage() {
   return (
-    <div className="min-h-screen bg-background text-foreground relative overflow-hidden">
-      <div className="fixed inset-0 z-0">
-        <video autoPlay loop muted playsInline className="absolute inset-0 w-full h-full object-cover opacity-20">
-          <source src="/abstract-futuristic-digital-space-particles.jpg" type="video/mp4" />
-        </video>
-        <div className="absolute inset-0 bg-gradient-to-b from-background/80 via-background/60 to-background/90" />
-      </div>
+    <div className="h-screen w-full overflow-hidden bg-[#F2E8DC] relative flex flex-col md:flex-row font-serif selection:bg-[#D4AF37]/30">
+      {/* DIAGONAL SPLIT */}
+      {/* LEFT CONTENT SECTION */}
+      <div className="w-full md:w-[60%] h-full flex flex-col justify-center px-8 md:px-20 z-20 relative bg-[#F2E8DC]">
+        {/* Navigation Logo */}
+        <nav className="absolute top-8 left-0 right-0 flex items-center justify-between px-8 md:px-20 z-30">
+          <div className="hidden md:flex gap-8 text-[#8A7968] text-xs font-bold tracking-widest font-sans uppercase">
+            <Link href="/stories" className="hover:text-[#5C4033] transition-colors relative group flex flex-col items-center">
+              <SparklesIcon className="w-4 h-4 text-[#D4AF37]" />
+              Your
+              <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-[#D4AF37] transition-all group-hover:w-full" />
+            </Link>
+          </div>
+          {/* Small pop‑up title */}
+          <div className="flex flex-col items-center absolute left-1/2 -translate-x-1/2">
+            <div className="flex items-center gap-3 bg-[#F2E8DC] text-[#4A332A] px-4 py-2 rounded-lg shadow-md text-xl font-medium">
+              <span className="font-bold">And</span>
+              <span className="font-bold bg-[#4A332A] text-[#F2E8DC] px-2 rounded-md">Then?</span>
+            </div>
+          </div>
+          {/* Placeholder for right-aligned items if needed, to balance justify-between */}
+          
+          <div className="hidden md:flex w-[70px]"></div> {/* Adjust width as needed to balance the 'Stories' link */}
+          <div className="hidden md:flex gap-8 text-[#8A7968] text-xs font-bold tracking-widest font-sans uppercase">
+            <Link href="/stories" className="hover:text-[#5C4033] transition-colors relative group flex flex-col items-center">
+              <SparklesIcon className="w-4 h-4 text-[#D4AF37]" />
+              Story
+              <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-[#D4AF37] transition-all group-hover:w-full" />
+            </Link>
+          </div>
+        </nav>
 
-      <AnimatedGrid />
-
-      <motion.div
-        initial={{ y: -100, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        className="fixed top-8 left-1/2 -translate-x-1/2 z-50 flex items-center gap-6 px-8 py-4 bg-card/20 backdrop-blur-2xl border border-primary/30 rounded-full glow-violet"
-      >
-        <motion.div className="flex items-center gap-2" whileHover={{ scale: 1.05 }}>
-         
-          <span className="text-lg font-display font-bold text-glow-violet">AND-THEN?</span>
-        </motion.div>
-        <div className="w-px h-6 bg-primary/30" />
-        <Link href="/auth/login">
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            className="px-4 py-2 text-sm font-display uppercase tracking-wider text-foreground/80 hover:text-primary transition-colors"
-          >
-            Log in
-          </motion.button>
-        </Link>
-        <Link href="/auth/signup">
-          <NeonButton glowColor="violet" className="text-sm px-6 py-2">
-            Sign up
-          </NeonButton>
-        </Link>
-      </motion.div>
-
-      {/* Hero Section */}
-      <section className="pt-32 pb-20 px-4 sm:px-6 lg:px-8 relative">
-        <motion.div style={{ y: heroY }} className="max-w-5xl mx-auto text-center relative z-10">
+        {/* Main Typography */}
+        <div className="mt-[-40px] relative z-20 max-w-2xl">
           <motion.div
-            initial={{  scale: 0.8 }}
-            animate={{  scale: 1 }}
-            transition={{ delay: 0.2 }}
-            className="inline-block mb-8 px-6 py-3 bg-card/50 backdrop-blur-xl rounded-full border border-primary/30 glow-violet"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            className="inline-flex items-center gap-2 px-3 py-1 mb-6 border border-[#8A7968]/30 rounded-full text-[#8A7968] text-[0.65rem] tracking-[0.2em] font-sans uppercase bg-[#fff8e7]/50"
           >
-            <span className="text-sm font-display uppercase tracking-wider text-primary">AI-Powered Storytelling</span>
+            <span className="w-1.5 h-1.5 rounded-full bg-[#D4AF37] animate-pulse" />
+            AI-Powered Interactive Fiction
           </motion.div>
 
-          <motion.h1
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3, duration: 0.8 }}
-            className="text-6xl sm:text-7xl lg:text-8xl font-display font-bold mb-8 text-balance"
-          >
-            STORIES THAT KNOW{" "}
-            <span className="text-primary text-glow-violet bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent">
-              YOU
+          
+
+          {/* Main title */}
+          <h1 className="text-6xl md:text-8xl font-bold text-[#4A332A] leading-[1.05] mb-8 tracking-tight">
+            Stories That <br />
+            <span className="relative inline-block">
+              <span className="text-[#D4AF37] italic font-serif">Know You</span>
+              <motion.svg
+                initial={{ pathLength: 0, opacity: 0 }}
+                animate={{ pathLength: 1, opacity: 1 }}
+                transition={{ delay: 1, duration: 1.5, ease: "easeInOut" }}
+                className="absolute w-[110%] h-4 -bottom-1 -left-[5%] text-[#D4AF37]/60"
+                viewBox="0 0 100 10"
+                preserveAspectRatio="none"
+              >
+                <motion.path d="M0 5 Q 50 12 100 5" stroke="currentColor" strokeWidth="2" fill="none" />
+              </motion.svg>
             </span>
-          </motion.h1>
+          </h1>
 
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5 }}
-            className="text-xl text-foreground/70 mb-12 text-balance max-w-3xl mx-auto leading-relaxed"
-          >
-            Discover personalized narratives tailored to your personality. Take a quick personality test and step into
-            stories that adapt to your choices and character.
-          </motion.p>
+          {/* Text generate effect */}
+          <TextGenerateEffect
+            words="Discover narratives woven from the threads of your own personality. Take the test, and step into a world that adapts to your soul."
+            className="text-[#8A7968] text-lg md:text-xl max-w-lg leading-relaxed mb-10 font-medium"
+          />
 
+          {/* Signup button */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.6 }}
-            className="flex flex-col sm:flex-row gap-6 justify-center mb-20"
+            transition={{ delay: 1.5, duration: 0.8 }}
+            className="flex items-center gap-6"
           >
             <Link href="/auth/signup">
-              <NeonButton glowColor="violet" className="text-base px-8 py-4">
-                Start Your Story
-                <ChevronRight className="w-5 h-5 ml-2 inline" />
-              </NeonButton>
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="bg-[#4A332A] text-[#F2E8DC] px-8 py-4 rounded-xl shadow-xl transition-all flex items-center gap-3 font-sans font-bold tracking-wider text-sm hover:bg-[#2a1a10]"
+              >
+                START STORY <ArrowRight className="w-4 h-4 ml-1" />
+              </motion.button>
             </Link>
-            <NeonButton glowColor="cyan" className="text-base px-8 py-4">
-              Watch Demo
-            </NeonButton>
           </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.8 }}
-            className="relative rounded-lg overflow-hidden border-2 border-primary/30 bg-card/30 backdrop-blur-xl h-[500px] flex items-center justify-center glow-violet"
-          >
-            {/* Corner accents */}
-            <div className="absolute top-0 left-0 w-8 h-8 border-t-2 border-l-2 border-primary" />
-            <div className="absolute top-0 right-0 w-8 h-8 border-t-2 border-r-2 border-primary" />
-            <div className="absolute bottom-0 left-0 w-8 h-8 border-b-2 border-l-2 border-primary" />
-            <div className="absolute bottom-0 right-0 w-8 h-8 border-b-2 border-r-2 border-primary" />
-
-            {/* Animated background */}
-            <motion.div
-              animate={{
-                scale: [1, 1.2, 1],
-                rotate: [0, 90, 180, 270, 360],
-              }}
-              transition={{
-                duration: 30,
-                repeat: Number.POSITIVE_INFINITY,
-                ease: "linear",
-              }}
-              className="absolute inset-0 bg-gradient-to-br from-primary/10 via-secondary/10 to-accent/10"
-            />
-
-            <div className="text-center relative z-10">
-              <motion.div
-                animate={{
-                  rotate: 360,
-                  scale: [1, 1.1, 1],
-                }}
-                transition={{
-                  rotate: { duration: 4, repeat: Number.POSITIVE_INFINITY, ease: "linear" },
-                  scale: { duration: 2, repeat: Number.POSITIVE_INFINITY, ease: "easeInOut" },
-                }}
-              >
-                <Sparkles className="w-24 h-24 text-primary mx-auto mb-6 drop-shadow-[0_0_20px_rgba(147,51,234,0.8)]" />
-              </motion.div>
-              <p className="text-2xl font-display uppercase tracking-wider text-foreground/50">Your story awaits...</p>
-            </div>
-          </motion.div>
-        </motion.div>
-      </section>
-
-      {/* Features Section */}
-      <section className="py-32 px-4 sm:px-6 lg:px-8 relative">
-        <div className="max-w-6xl mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-center mb-20"
-          >
-            <h2 className="text-5xl font-display font-bold mb-6 text-glow-violet">HOW IT WORKS</h2>
-            <p className="text-xl text-foreground/60">Three simple steps to your personalized adventure</p>
-          </motion.div>
-
-          <div className="grid md:grid-cols-3 gap-8">
-            {[
-              {
-                icon: Sparkles,
-                title: "DISCOVER YOUR PERSONALITY",
-                description:
-                  "Take our engaging 16-question personality test to reveal your unique traits and story preferences.",
-                color: "violet" as const,
-              },
-              {
-                icon: Zap,
-                title: "AI GENERATES YOUR STORY",
-                description:
-                  "Our AI creates a unique narrative tailored to your personality across 5 immersive genres.",
-                color: "cyan" as const,
-              },
-              {
-                icon: Users,
-                title: "MAKE MEANINGFUL CHOICES",
-                description:
-                  "Your decisions shape the story. Every choice matters and influences the narrative outcome.",
-                color: "blue" as const,
-              },
-            ].map((feature, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: index * 0.15 }}
-              >
-                <NeonCard glowColor={feature.color} className="h-full">
-                  <motion.div
-                    whileHover={{ rotate: 360, scale: 1.1 }}
-                    transition={{ duration: 0.6 }}
-                    className="w-16 h-16 rounded-lg bg-primary/10 flex items-center justify-center mb-6 border border-primary/30"
-                  >
-                    <feature.icon className="w-8 h-8 text-primary" />
-                  </motion.div>
-                  <h3 className="text-xl font-display font-bold mb-4 uppercase tracking-wide">{feature.title}</h3>
-                  <p className="text-foreground/70 leading-relaxed">{feature.description}</p>
-                </NeonCard>
-              </motion.div>
-            ))}
-          </div>
         </div>
-      </section>
 
-      {/* CTA Section */}
-      <section className="py-32 px-4 sm:px-6 lg:px-8 relative">
+        {/* Footer */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="max-w-4xl mx-auto text-center"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 2, duration: 1 }}
+          className="absolute bottom-6 text-[#8A7968]/40 text-[0.6rem] tracking-widest font-sans uppercase"
         >
-          <h2 className="text-5xl font-display font-bold mb-8 text-glow-violet">READY TO BEGIN?</h2>
-          <p className="text-xl text-foreground/60 mb-12 leading-relaxed">
-            Join thousands of story enthusiasts discovering personalized narratives powered by AI.
-          </p>
-          <Link href="/auth/signup">
-            <NeonButton glowColor="violet" className="text-lg px-10 py-5">
-              Create Your Account
-              <ChevronRight className="w-6 h-6 ml-2 inline" />
-            </NeonButton>
-          </Link>
+          © 2025 And-Then Platform
         </motion.div>
-      </section>
+      </div>
 
-      {/* Footer */}
-      <footer className="border-t border-primary/20 py-8 px-4 sm:px-6 lg:px-8 bg-card/30 backdrop-blur-xl relative">
-        <div className="max-w-6xl mx-auto text-center text-foreground/50 text-sm font-display uppercase tracking-wider">
-          <p>&copy; 2025 AND-THEN? . ALL RIGHTS RESERVED.</p>
+      {/* CENTER CHARACTER - BRIDGING THE SPLIT */}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.9, y: 50 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        transition={{ duration: 1.2, ease: "easeOut", delay: 0.3 }}
+        className="absolute -bottom-10 left-[60%] -translate-x-1/2 z-30 h-[100vh] w-auto pointer-events-none"
+      >
+        {/* Character Image */}
+        <img
+          src="/backgrounds/ghibli-character-middle.png"
+          alt="Character"
+          className="h-full w-auto object-contain object-bottom drop-shadow-[0_0_30px_rgba(212,175,55,0.4)]"
+        />
+      </motion.div>
+
+      {/* RIGHT IMAGE SECTION */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 1.5, ease: "easeOut" }}
+        className="absolute top-0 right-0 w-full md:w-[50%] h-full z-10 bg-[#1a0b05]"
+        style={{ clipPath: "polygon(40% 0, 100% 0, 100% 100%, 20% 100%)" }}
+      >
+        <div className="relative w-full h-full overflow-hidden">
+          {/* Background Image - Darker Tint */}
+          <div
+            className="absolute inset-0 bg-cover bg-center"
+            style={{ backgroundImage: "url('/backgrounds/ghibli-3d-hero.png')" }}
+          />
+          {/* Dark Overlay */}
+          <div className="absolute inset-0 bg-[#2a1a10]/60 mix-blend-multiply" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#1a0b05] via-transparent to-transparent" />
+          {/* Particles */}
+          <SparklesCore />
         </div>
-      </footer>
+      </motion.div>
+
+      {/* RIGHT SIDE VERTICAL MENU */}
+      <div className="absolute right-0 top-0 h-full w-20 md:w-24 z-50 flex flex-col items-center py-10 bg-gradient-to-l from-[#1a0b05]/80 to-transparent">
+        {/* Hamburger Icon (placeholder) */}
+        {/* Vertical Text Links */}
+        <div className="flex flex-col gap-8 items-center justify-center h-full">
+          <Link href="/auth/signup">
+            <div className="writing-vertical-rl text-[#D4AF37] font-bold tracking-[0.3em] text-xs uppercase hover:text-[#F2E8DC] transition-colors cursor-pointer py-4 border-l border-transparent ">
+              SIGN UP
+            </div>
+          </Link>
+          <div className="h-10 w-[1px] bg-[#D4AF37]/30" />
+          <Link href="/auth/login">
+            <div className="writing-vertical-rl text-[#D4AF37] font-bold tracking-[0.3em] text-xs uppercase hover:text-[#F2E8DC] transition-colors cursor-pointer py-4">
+              LOGIN
+            </div>
+          </Link>
+        </div>
+        <div className="mt-auto" />
+      </div>
+
+      {/* Decorative Diagonal Line */}
+      <div
+        className="absolute top-0 right-[50%] w-[1px] h-full bg-gradient-to-b from-[#D4AF37]/0 via-[#D4AF37]/50 to-[#D4AF37]/0 z-20 hidden md:block transform -skew-x-[11deg] origin-top opacity-30"
+        style={{ left: "55%" }}
+      />
     </div>
-  )
+  );
 }
+
+// --- Aceternity Style Components ---
+
+const TextGenerateEffect = ({ words, className }: { words: string; className?: string }) => {
+  const [scope, animate] = useAnimate();
+  const wordsArray = words.split(" ");
+
+  useEffect(() => {
+    animate(
+      "span",
+      { opacity: 1, filter: "blur(0px)" },
+      { duration: 1, delay: stagger(0.1), ease: "easeOut" }
+    );
+  }, [scope.current]);
+
+  return (
+    <div className={cn("font-serif leading-snug tracking-wide", className)}>
+      <motion.div ref={scope}>
+        {wordsArray.map((word, idx) => (
+          <motion.span key={word + idx} className="opacity-0 filter blur-[10px] inline-block mr-1.5">
+            {word}
+          </motion.span>
+        ))}
+      </motion.div>
+    </div>
+  );
+};
+
+const SparklesCore = () => {
+  const sparkles = Array.from({ length: 30 }).map((_, i) => ({
+    id: i,
+    x: Math.random() * 100,
+    y: Math.random() * 100,
+    size: Math.random() * 2 + 1,
+    duration: Math.random() * 2 + 3,
+    delay: Math.random() * 2,
+  }));
+
+  return (
+    <div className="absolute inset-0 overflow-hidden pointer-events-none">
+      {sparkles.map((sparkle) => (
+        <motion.div
+          key={sparkle.id}
+          className="absolute rounded-full"
+          style={{
+            left: `${sparkle.x}%`,
+            top: `${sparkle.y}%`,
+            width: sparkle.size,
+            height: sparkle.size,
+            background:
+              "radial-gradient(circle, rgba(255,255,255,1) 0%, rgba(212,175,55,0.8) 50%, rgba(0,0,0,0) 100%)",
+            boxShadow: "0 0 4px 1px rgba(212,175,55,0.3)",
+          }}
+          animate={{ y: [0, -40, 0], opacity: [0, 0.8, 0], scale: [0, 1.2, 0] }}
+          transition={{ duration: sparkle.duration, repeat: Infinity, delay: sparkle.delay, ease: "easeInOut" }}
+        />
+      ))}
+    </div>
+  );
+};

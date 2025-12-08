@@ -3,12 +3,12 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { motion } from "framer-motion"
-import { NeonCard } from "@/components/ui/neon-card"
+import { StorytellerCard } from "@/components/ui/storyteller-card"
 import { NeonButton } from "@/components/ui/neon-button"
-import { AnimatedGrid } from "@/components/ui/animated-grid"
 import { Input } from "@/components/ui/input"
-import { Globe, Loader2 } from "lucide-react"
+import { Scroll, Loader2, Search } from "lucide-react"
 import { toast } from "sonner"
+import Link from "next/link"
 
 export default function JoinRoomPage() {
   const router = useRouter()
@@ -46,50 +46,31 @@ export default function JoinRoomPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background relative overflow-hidden">
-      <div className="fixed inset-0 z-0">
-        <motion.div
-          style={{
-            backgroundImage: "url('/cyberpunk-neon-city-skyline-night.jpg')",
-            backgroundSize: "cover",
-            backgroundPosition: "center",
-          }}
-          animate={{
-            scale: [1, 1.1, 1],
-          }}
-          transition={{
-            duration: 20,
-            repeat: Number.POSITIVE_INFINITY,
-            ease: "easeInOut",
-          }}
-          className="absolute inset-0 opacity-15"
-        />
-        <div className="absolute inset-0 bg-gradient-to-b from-background/90 via-background/80 to-background/95" />
-      </div>
+    <div className="min-h-screen bg-parchment dark:bg-[#1a0b05] relative overflow-hidden transition-colors duration-300">
+      {/* Background Texture Overlay */}
+      <div className="fixed inset-0 pointer-events-none opacity-50 z-0 bg-[url('https://www.transparenttextures.com/patterns/aged-paper.png')] dark:bg-[url('https://www.transparenttextures.com/patterns/black-scales.png')] dark:opacity-30 mix-blend-multiply dark:mix-blend-soft-light transition-all"></div>
 
-      <AnimatedGrid />
-
-      <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-32 relative z-10">
+      <div className="max-w-xl mx-auto px-4 sm:px-6 lg:px-8 py-32 relative z-10 flex flex-col items-center justify-center min-h-screen">
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-center mb-12"
+          className="text-center mb-12 w-full"
         >
           <motion.div
             initial={{ scale: 0.8 }}
             animate={{ scale: 1 }}
             transition={{ delay: 0.2 }}
-            className="flex justify-center mb-4"
+            className="flex justify-center mb-6"
           >
-            <div className="w-16 h-16 rounded-lg bg-secondary flex items-center justify-center">
-              <Globe className="w-8 h-8 text-secondary-foreground" />
+            <div className="w-20 h-20 rounded-full bg-[#f4e4bc] dark:bg-[#2a1a10] border-4 border-double border-[#d4af37]/60 flex items-center justify-center shadow-lg">
+              <Scroll className="w-10 h-10 text-[#8b4513] dark:text-[#d4af37]" />
             </div>
           </motion.div>
-          <h1 className="text-4xl sm:text-5xl font-display font-bold mb-4 text-glow-cyan">
-            JOIN ROOM
+          <h1 className="text-4xl sm:text-5xl font-serif font-bold mb-4 text-[#2a1a10] dark:text-[#d4af37] drop-shadow-sm">
+            Join the Tale
           </h1>
-          <p className="text-lg text-foreground/60">
-            Enter the room code to join
+          <p className="text-lg text-[#5c4033] dark:text-[#d4af37]/80 font-serif italic">
+            Enter the secret rune to find your party
           </p>
         </motion.div>
 
@@ -97,12 +78,13 @@ export default function JoinRoomPage() {
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.3 }}
+          className="w-full"
         >
-          <NeonCard glowColor="cyan" className="text-center">
-            <div className="mb-6">
+          <StorytellerCard className="text-center bg-white/80 dark:bg-[#2a1a10]/80 backdrop-blur-sm">
+            <div className="mb-8 relative">
               <Input
                 type="text"
-                placeholder="Enter 6-digit room code"
+                placeholder="Ex: AB12CD3"
                 value={roomCode}
                 onChange={(e) => setRoomCode(e.target.value.toUpperCase().slice(0, 6))}
                 onKeyDown={(e) => {
@@ -110,32 +92,40 @@ export default function JoinRoomPage() {
                     void handleJoin()
                   }
                 }}
-                className="text-center text-3xl font-display font-bold tracking-widest uppercase"
+                className="text-center text-3xl font-serif font-bold tracking-widest uppercase py-6 bg-[#f4e4bc]/30 dark:bg-black/20 border-2 border-[#d4af37]/30 focus:border-[#d4af37] text-[#2a1a10] dark:text-[#d4af37] placeholder:text-[#8b4513]/30 dark:placeholder:text-[#d4af37]/30 rounded-lg"
                 maxLength={6}
                 disabled={isJoining}
               />
             </div>
 
             <div className="flex gap-4 justify-center">
+              <Link href="/stories/multiplayer" className="flex-1">
+                <NeonButton variant="outline" className="w-full border-[#8b4513]/30 text-[#8b4513] hover:bg-[#8b4513]/10 dark:border-[#d4af37]/30 dark:text-[#d4af37] dark:hover:bg-[#d4af37]/10">
+                  Return
+                </NeonButton>
+              </Link>
               <NeonButton
-                glowColor="cyan"
+                glowColor="gold"
                 onClick={handleJoin}
                 disabled={isJoining || !roomCode.trim()}
+                className="flex-[2]"
               >
                 {isJoining ? (
                   <>
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Joining...
+                    Seeking...
                   </>
                 ) : (
-                  "Join Room"
+                  <>
+                    <Search className="w-4 h-4 mr-2" />
+                    Seek Audience
+                  </>
                 )}
               </NeonButton>
             </div>
-          </NeonCard>
+          </StorytellerCard>
         </motion.div>
       </div>
     </div>
   )
 }
-

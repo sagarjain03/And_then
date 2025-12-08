@@ -2,26 +2,26 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
+import Link from "next/link"
 import { motion, AnimatePresence } from "framer-motion"
 import { NeonButton } from "@/components/ui/neon-button"
-import { HUDPanel } from "@/components/ui/hud-panel"
-import { AnimatedGrid } from "@/components/ui/animated-grid"
+import { StorytellerCard } from "@/components/ui/storyteller-card"
 import { Progress } from "@/components/ui/progress"
-import { XPNotification } from "@/components/ui/xp-notification"
-import { BadgeUnlock } from "@/components/ui/badge-unlock"
+// import { XPNotification } from "@/components/ui/xp-notification" // Disabled for theme consistency or needs restyling
+// import { BadgeUnlock } from "@/components/ui/badge-unlock" // Disabled for theme consistency
 import { PERSONALITY_QUESTIONS, calculatePersonalityScores, type CharacterProfile } from "@/lib/personality-data"
 import { awardXP, unlockBadge, BADGES } from "@/lib/gamification"
-import { BookOpen, Sparkles } from "lucide-react"
+import { BookOpen, Sparkles, Feather, ArrowRight, ArrowLeft } from "lucide-react"
 
 export default function PersonalityTestPage() {
   const router = useRouter()
   const [currentQuestion, setCurrentQuestion] = useState(0)
   const [responses, setResponses] = useState<Record<number, string>>({})
   const [isComplete, setIsComplete] = useState(false)
-  const [showXP, setShowXP] = useState(false)
-  const [xpAmount, setXpAmount] = useState(0)
-  const [showBadge, setShowBadge] = useState(false)
-  const [unlockedBadge, setUnlockedBadge] = useState<any>(null)
+  // const [showXP, setShowXP] = useState(false)
+  // const [xpAmount, setXpAmount] = useState(0)
+  // const [showBadge, setShowBadge] = useState(false)
+  // const [unlockedBadge, setUnlockedBadge] = useState<any>(null)
   const [isSavingResult, setIsSavingResult] = useState(false)
 
   const question = PERSONALITY_QUESTIONS[currentQuestion]
@@ -33,8 +33,8 @@ export default function PersonalityTestPage() {
 
     // Award XP for answering (persisted per user in MongoDB)
     void awardXP(5, "Answered question")
-    setXpAmount(5)
-    setShowXP(true)
+    // setXpAmount(5)
+    // setShowXP(true)
 
     if (currentQuestion < PERSONALITY_QUESTIONS.length - 1) {
       setTimeout(() => {
@@ -101,112 +101,87 @@ export default function PersonalityTestPage() {
       console.error("Failed to resolve profile for results redirect", err)
     }
 
-    if (badgeUnlocked) {
-      const badge = BADGES.find((b) => b.id === "first-test")
-      setUnlockedBadge(badge)
-      setShowBadge(true)
-      setTimeout(() => {
-        router.push(target)
-      }, 3500)
-    } else {
-      router.push(target)
-    }
+    // if (badgeUnlocked) {
+    //   const badge = BADGES.find((b) => b.id === "first-test")
+    //   setUnlockedBadge(badge)
+    //   setShowBadge(true)
+    //   setTimeout(() => {
+    //     router.push(target)
+    //   }, 3500)
+    // } else {
+    router.push(target)
+    // }
 
     setIsSavingResult(false)
   }
 
   if (isComplete) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center px-4 relative overflow-hidden">
-        <div className="fixed inset-0 z-0">
-          <motion.div
-            style={{
-              backgroundImage: "url('/abstract-neural-network-brain-connections.jpg')",
-              backgroundSize: "cover",
-              backgroundPosition: "center",
-            }}
-            animate={{
-              scale: [1, 1.05, 1],
-            }}
-            transition={{
-              duration: 15,
-              repeat: Number.POSITIVE_INFINITY,
-              ease: "easeInOut",
-            }}
-            className="absolute inset-0 opacity-20"
-          />
-          <div className="absolute inset-0 bg-gradient-to-b from-background/90 via-background/85 to-background/95" />
-        </div>
-        <AnimatedGrid />
-        <BadgeUnlock show={showBadge} badge={unlockedBadge} />
-        <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="relative z-10">
-          <HUDPanel className="w-full max-w-md">
+      <div className="min-h-screen bg-parchment flex items-center justify-center px-4 relative overflow-hidden font-serif">
+        {/* Background Texture */}
+        <div className="fixed inset-0 pointer-events-none opacity-50 z-0 bg-[url('https://www.transparenttextures.com/patterns/aged-paper.png')]"></div>
+        {/* <BadgeUnlock show={showBadge} badge={unlockedBadge} /> */}
+        <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="relative z-10 w-full max-w-md">
+          <StorytellerCard className="w-full">
             <div className="text-center space-y-8 py-8">
               <motion.div
                 animate={{
                   rotate: 360,
-                  scale: [1, 1.2, 1],
                 }}
                 transition={{
-                  rotate: { duration: 3, repeat: Number.POSITIVE_INFINITY, ease: "linear" },
-                  scale: { duration: 2, repeat: Number.POSITIVE_INFINITY, ease: "easeInOut" },
+                  duration: 10,
+                  repeat: Number.POSITIVE_INFINITY,
+                  ease: "linear"
                 }}
-                className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center mx-auto border-2 border-primary/30 glow-violet"
+                className="w-24 h-24 rounded-full bg-[#f4e4bc] flex items-center justify-center mx-auto border-2 border-[#d4af37] shadow-book"
               >
-                <Sparkles className="w-10 h-10 text-primary" />
+                <Feather className="w-12 h-12 text-[#8b4513]" />
               </motion.div>
               <div>
-                <h2 className="text-3xl font-display font-bold mb-3 text-glow-violet uppercase">Test Complete!</h2>
-                <p className="text-foreground/60 leading-relaxed">
-                  We're analyzing your personality to create your perfect story...
+                <h2 className="text-3xl font-bold mb-3 text-[#2a1a10] uppercase tracking-wide">The Ink is Dry</h2>
+                <p className="text-[#5c4033] leading-relaxed italic">
+                  We are interpreting your soul's resonance...
                 </p>
               </div>
-              <NeonButton onClick={handleComplete} glowColor="violet" className="w-full" disabled={isSavingResult}>
-                {isSavingResult ? "Preparing your character..." : "View Your Results"}
+              <NeonButton onClick={handleComplete} glowColor="gold" className="w-full text-lg" disabled={isSavingResult}>
+                {isSavingResult ? (
+                  <span className="flex items-center gap-2">
+                    <Feather className="w-4 h-4 animate-spin" />
+                    Scrying...
+                  </span>
+                ) : "Reveal Your Archetype"}
               </NeonButton>
             </div>
-          </HUDPanel>
+          </StorytellerCard>
         </motion.div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-background py-8 px-4 relative overflow-hidden">
-      <div className="fixed inset-0 z-0">
-        <motion.div
-          style={{
-            backgroundImage: "url('/abstract-neural-network-brain-connections.jpg')",
-            backgroundSize: "cover",
-            backgroundPosition: "center",
-          }}
-          animate={{
-            scale: [1, 1.05, 1],
-          }}
-          transition={{
-            duration: 15,
-            repeat: Number.POSITIVE_INFINITY,
-            ease: "easeInOut",
-          }}
-          className="absolute inset-0 opacity-20"
-        />
-        <div className="absolute inset-0 bg-gradient-to-b from-background/90 via-background/85 to-background/95" />
-      </div>
-      <AnimatedGrid />
-      <XPNotification show={showXP} amount={xpAmount} reason="Answered question" onComplete={() => setShowXP(false)} />
+    <div className="min-h-screen bg-parchment py-12 px-4 relative overflow-hidden font-serif text-[#2a1a10]">
+      {/* Background Texture */}
+      <div className="fixed inset-0 pointer-events-none opacity-50 z-0 bg-[url('https://www.transparenttextures.com/patterns/aged-paper.png')]"></div>
+
+      {/* <XPNotification show={showXP} amount={xpAmount} reason="Answered question" onComplete={() => setShowXP(false)} /> */}
 
       <div className="max-w-3xl mx-auto relative z-10">
         {/* Header */}
         <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
-          <div className="flex items-center gap-3 mb-4">
-            <BookOpen className="w-6 h-6 text-primary" />
-            <span className="text-sm font-display uppercase tracking-wider text-foreground/60">
-              Question {currentQuestion + 1} / {PERSONALITY_QUESTIONS.length}
-            </span>
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-3">
+              <BookOpen className="w-6 h-6 text-[#8b4513]" />
+              <span className="text-sm font-bold uppercase tracking-wider text-[#5c4033]">
+                Query {currentQuestion + 1} of {PERSONALITY_QUESTIONS.length}
+              </span>
+            </div>
+            <Link href="/dashboard" className="text-[#8b4513] hover:text-[#2a1a10] text-sm font-bold uppercase tracking-wider flex items-center gap-1 transition-colors">
+              <ArrowLeft className="w-4 h-4" />
+              Exit
+            </Link>
           </div>
           <div className="relative">
-            <Progress value={progress} className="h-3 border border-primary/30" />
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-primary/20 to-transparent animate-pulse pointer-events-none" />
+            <Progress value={progress} className="h-2 bg-[#d4af37]/20 border border-[#d4af37]/30 [&>div]:bg-[#d4af37]" />
           </div>
         </motion.div>
 
@@ -214,62 +189,65 @@ export default function PersonalityTestPage() {
         <AnimatePresence mode="wait">
           <motion.div
             key={currentQuestion}
-            initial={{ opacity: 0, x: 100 }}
+            initial={{ opacity: 0, x: 50 }}
             animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -100 }}
+            exit={{ opacity: 0, x: -50 }}
             transition={{ duration: 0.4 }}
           >
-            <HUDPanel className="mb-8">
-              <h2 className="text-2xl font-display font-bold mb-8 text-balance leading-tight">{question.text}</h2>
+            <StorytellerCard className="mb-8 py-10 px-8 bg-white/90">
+              <h2 className="text-3xl font-bold mb-10 text-balance leading-tight text-center">{question.text}</h2>
 
               <div className="space-y-4">
                 {question.options.map((option, index) => (
                   <motion.button
                     key={option.label}
-                    initial={{ opacity: 0, x: -30 }}
-                    animate={{ opacity: 1, x: 0 }}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: index * 0.1 }}
-                    whileHover={{ scale: 1.02, x: 8 }}
-                    whileTap={{ scale: 0.98 }}
+                    whileHover={{ scale: 1.01, x: 5 }}
+                    whileTap={{ scale: 0.99 }}
                     onClick={() => handleResponse(option.label)}
-                    className={`w-full text-left p-5 rounded-lg border-2 transition-all ${
-                      responses[question.id] === option.label
-                        ? "border-primary bg-primary/10 glow-violet"
-                        : "border-border hover:border-primary/50 hover:bg-card/50"
-                    }`}
+                    className={`w-full text-left p-6 rounded-lg border-2 transition-all relative group overflow-hidden ${responses[question.id] === option.label
+                      ? "border-[#d4af37] bg-[#f4e4bc]/50"
+                      : "border-[#d4af37]/20 hover:border-[#d4af37]/60 hover:bg-[#fff8e7]"
+                      }`}
                   >
-                    <div className="flex gap-4">
-                      <span className="font-display font-bold text-primary text-xl shrink-0">{option.label})</span>
-                      <span className="text-foreground leading-relaxed">{option.text}</span>
+                    <div className={`absolute left-0 top-0 bottom-0 w-1 bg-[#d4af37] transition-transform duration-300 ${responses[question.id] === option.label ? 'scale-y-100' : 'scale-y-0 group-hover:scale-y-100'}`}></div>
+                    <div className="flex gap-4 items-baseline">
+                      <span className="font-bold text-[#8b4513] text-xl shrink-0 font-serif">{option.label}.</span>
+                      <span className="text-[#2a1a10] leading-relaxed text-lg italic">{option.text}</span>
                     </div>
                   </motion.button>
                 ))}
               </div>
 
-              <motion.p
+              <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.6 }}
-                className="text-xs text-foreground/50 mt-8 italic font-display uppercase tracking-wider"
+                className="mt-8 pt-6 border-t border-[#d4af37]/20 flex items-center justify-center gap-2"
               >
-                Insight: {question.insight}
-              </motion.p>
-            </HUDPanel>
+                <Sparkles className="w-4 h-4 text-[#d4af37]" />
+                <p className="text-sm text-[#5c4033] italic font-bold uppercase tracking-wider">
+                  Uncovers: {question.insight}
+                </p>
+                <Sparkles className="w-4 h-4 text-[#d4af37]" />
+              </motion.div>
+            </StorytellerCard>
           </motion.div>
         </AnimatePresence>
 
         {/* Navigation */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="flex gap-4">
-          <NeonButton
-            glowColor="cyan"
+          <button
             onClick={() => setCurrentQuestion(Math.max(0, currentQuestion - 1))}
             disabled={currentQuestion === 0}
-            className="flex-1"
+            className="flex-1 py-4 border border-[#d4af37]/30 rounded-lg text-[#8b4513] font-bold uppercase tracking-wider hover:bg-[#fff8e7] disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-serif"
           >
-            Previous
-          </NeonButton>
+            Previous Scroll
+          </button>
           <NeonButton
-            glowColor="violet"
+            glowColor="gold"
             onClick={() => {
               if (responses[question.id]) {
                 if (currentQuestion < PERSONALITY_QUESTIONS.length - 1) {
@@ -282,7 +260,11 @@ export default function PersonalityTestPage() {
             disabled={!responses[question.id]}
             className="flex-1"
           >
-            {currentQuestion < PERSONALITY_QUESTIONS.length - 1 ? "Next" : "Complete"}
+            {currentQuestion < PERSONALITY_QUESTIONS.length - 1 ? (
+              <span className="flex items-center gap-2 justify-center">
+                Next Page <ArrowRight className="w-4 h-4" />
+              </span>
+            ) : "Seal Your Fate"}
           </NeonButton>
         </motion.div>
       </div>
