@@ -101,7 +101,7 @@ export async function POST(request: NextRequest) {
 
     const { object } = await generateObject({
       // model: google("gemini-pro"),
-      model: google("gemini-2.5-pro"),
+      model: google("gemini-2.5-flash"),
       schema: StoryTurnSchema,
       prompt: `You are an interactive story engine for a ${genre.name.toLowerCase()} narrative.
 
@@ -177,3 +177,39 @@ Return ONLY a JSON object matching the provided schema (no extra commentary, no 
     return NextResponse.json({ error: "Failed to generate story" }, { status: 500 })
   }
 }
+
+
+// import { NextResponse } from 'next/server';
+
+// // Yahan apni 'AIza...' wali key dalein
+// const API_KEY = "AIzaSyBbfeWkRceLufvnpkDz_jTm9pE0nethi9Y"; 
+
+// export async function POST() {
+//   // Hum direct URL hit kar rahe hain, SDK ko bypass karke
+//   const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${API_KEY}`;
+
+//   const payload = {
+//     contents: [{
+//       parts: [{ text: "Hello, tell me a short story." }]
+//     }]
+//   };
+
+//   try {
+//     const response = await fetch(url, {
+//       method: 'POST',
+//       headers: { 'Content-Type': 'application/json' },
+//       body: JSON.stringify(payload)
+//     });
+
+//     const data = await response.json();
+
+//     if (!response.ok) {
+//       return NextResponse.json({ error: data }, { status: response.status });
+//     }
+
+//     return NextResponse.json({ success: true, message: "API IS WORKING!", data });
+
+//   } catch (error) {
+//     return NextResponse.json({ error: "Network Error", details: error }, { status: 500 });
+//   }
+// }
