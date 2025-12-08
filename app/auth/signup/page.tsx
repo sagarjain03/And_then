@@ -23,6 +23,13 @@ export default function SignupPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
+
+  const handleGoogleSignIn = () => {
+    // signIn("google", { callbackUrl: "/dashboard" })
+    toast.error("Google Sign-In is currently unavailable.")
+  }
+
+
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault()
     // Validate username

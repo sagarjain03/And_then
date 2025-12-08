@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
 
-// Paths that require the user to be logged in (must have a JWT "token" cookie).
 const PROTECTED_PATHS = [
   "/dashboard",
   "/test",
@@ -19,7 +18,8 @@ function isAuthPath(pathname: string): boolean {
   return pathname.startsWith("/auth")
 }
 
-export function middleware(request: NextRequest) {
+// 👇 yaha naam change
+export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
 
   // Skip Next.js internals and static assets

@@ -36,7 +36,7 @@ export async function POST(request: NextRequest) {
       .join(", ")
 
     const { object } = await generateObject({
-      model: google("gemini-2.5-pro"),
+      model: google("gemini-2.5-flash"),
       schema: CharacterSchema,
       prompt: `You are an expert character designer for interactive fiction.
 
