@@ -25,7 +25,7 @@ export function BookLayout({ leftContent, rightContent, genre, onPageTurn, curre
     }, [currentPage])
 
     return (
-        <div className={cn("min-h-screen w-full flex items-center justify-center p-2 sm:p-4 lg:p-8 transition-colors duration-500 overflow-auto", theme.styles.container)}>
+        <div className={cn("min-h-screen w-full flex items-center justify-center p-2 sm:p-4 lg:p-8 transition-colors duration-500 overflow-hidden", theme.styles.container)}>
             {/* Mobile Portrait: Vertical Stack */}
             <div className="block portrait:block landscape:hidden w-full max-w-md mx-auto space-y-4 py-4">
                 {/* Left Page (Top on Mobile Portrait) */}
@@ -67,7 +67,7 @@ export function BookLayout({ leftContent, rightContent, genre, onPageTurn, curre
                             {/* Binding Shadow Left */}
                             <div className="absolute right-0 top-0 bottom-0 w-8 sm:w-12 bg-gradient-to-l from-black/10 to-transparent pointer-events-none z-10" />
 
-                            <div className="h-full w-full overflow-y-auto p-3 sm:p-6 lg:p-10 custom-scrollbar">
+                            <div className="h-full w-full overflow-y-auto no-scrollbar">
                                 <div className={cn("max-w-prose mx-auto min-h-full flex flex-col", theme.styles.text)}>
                                     {leftContent}
                                 </div>
@@ -82,7 +82,7 @@ export function BookLayout({ leftContent, rightContent, genre, onPageTurn, curre
                             {/* Binding Shadow Right */}
                             <div className="absolute left-0 top-0 bottom-0 w-8 sm:w-12 bg-gradient-to-r from-black/10 to-transparent pointer-events-none z-10" />
 
-                            <div className="h-full w-full overflow-y-auto p-3 sm:p-6 lg:p-10 custom-scrollbar">
+                            <div className="h-full w-full overflow-y-auto no-scrollbar">
                                 <div className={cn("max-w-prose mx-auto min-h-full flex flex-col", theme.styles.text)}>
                                     {rightContent}
                                 </div>
