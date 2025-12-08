@@ -100,6 +100,7 @@ export async function POST(request: NextRequest) {
       : "The reader has not made any choices yet (this is the opening)."
 
     const { object } = await generateObject({
+      // model: google("gemini-pro"),
       model: google("gemini-2.5-pro"),
       schema: StoryTurnSchema,
       prompt: `You are an interactive story engine for a ${genre.name.toLowerCase()} narrative.
