@@ -32,6 +32,9 @@ export async function GET(request: NextRequest) {
       return {}
     }
 
+    const multiplayerStories = stories.filter((story: any) => story.isMultiplayer)
+    const singlePlayerStories = stories.filter((story: any) => !story.isMultiplayer)
+
     const personalityResult = personality
       ? {
           scores: normalizeScores(personality.scores),
@@ -83,7 +86,9 @@ export async function GET(request: NextRequest) {
         username: user.username,
         email: user.email,
       },
-      stories,
+      stories, // kept for backward compatibility
+      singlePlayerStories,
+      multiplayerStories,
       personality: personalityResult,
     }
 
