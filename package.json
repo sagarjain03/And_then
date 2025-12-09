@@ -50,6 +50,7 @@
     "framer-motion": "12.23.24",
     "input-otp": "1.4.1",
     "jsonwebtoken": "^9.0.2",
+    "locomotive-scroll": "^4.1.4",
     "lucide-react": "^0.454.0",
     "mongodb": "6.20.0",
     "mongoose": "^8.19.2",
