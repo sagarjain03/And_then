@@ -195,7 +195,7 @@ export default function PersonalityTestPage() {
             transition={{ duration: 0.4 }}
           >
             <StorytellerCard className="mb-8 py-10 px-8 bg-white/90">
-              <h2 className="text-3xl font-bold mb-10 text-balance leading-tight text-center">{question.text}</h2>
+              <h2 className="text-3xl font-bold mb-10 text-balance leading-tight text-center text-[#fff8e7]">{question.text}</h2>
 
               <div className="space-y-4">
                 {question.options.map((option, index) => (
@@ -215,7 +215,7 @@ export default function PersonalityTestPage() {
                     <div className={`absolute left-0 top-0 bottom-0 w-1 bg-[#d4af37] transition-transform duration-300 ${responses[question.id] === option.label ? 'scale-y-100' : 'scale-y-0 group-hover:scale-y-100'}`}></div>
                     <div className="flex gap-4 items-baseline">
                       <span className="font-bold text-[#8b4513] text-xl shrink-0 font-serif">{option.label}.</span>
-                      <span className="text-[#2a1a10] leading-relaxed text-lg italic">{option.text}</span>
+                      <span className="text-[#5c4033] leading-relaxed text-lg italic">{option.text}</span>
                     </div>
                   </motion.button>
                 ))}
