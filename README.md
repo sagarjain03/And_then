@@ -311,9 +311,9 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 
 <p align="center">
-  Made with ❤️ by Sagar,Yogesh and Sneha
+  Made with ❤️ by Sagar, Yogesh and Sneha
 </p>
 
 <p align="center">
-  <strong>Start your personalized adventure today!</strong>
+  <strong>Start your personalized adventure today!!</strong>
 </p>
