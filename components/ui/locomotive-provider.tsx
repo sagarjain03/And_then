@@ -1,8 +1,6 @@
 "use client"
 import React, { useEffect, useRef } from "react"
 import { usePathname } from "next/navigation"
-import LocomotiveScroll from "locomotive-scroll"
-import "locomotive-scroll/dist/locomotive-scroll.css"
 
 export default function LocomotiveProvider({ children }: { children: React.ReactNode }) {
   const containerRef = useRef<HTMLDivElement | null>(null)
@@ -10,41 +8,51 @@ export default function LocomotiveProvider({ children }: { children: React.React
   const pathname = usePathname()
 
   useEffect(() => {
-    if (!containerRef.current) return
+    let mounted = true
+    let LocomotiveScroll: any = null
 
-    // destroy previous instance if present
-    if (locoRef.current) {
-      try {
-        locoRef.current.destroy()
-      } catch (e) {
-        // ignore
-      }
-      locoRef.current = null
-    }
+    async function init() {
+      if (!containerRef.current || !mounted) return
 
-    // init
-    locoRef.current = new LocomotiveScroll({
-      el: containerRef.current,
-      smooth: true,
-      direction: "vertical",
-      smartphone: { smooth: true },
-      tablet: { smooth: true },
-    })
+      // Dynamic import prevents server-side evaluation
+      const mod = await import("locomotive-scroll")
+      LocomotiveScroll = mod.default ?? mod
+      await import("locomotive-scroll/dist/locomotive-scroll.css")
 
-    return () => {
+      // destroy previous instance if present
       if (locoRef.current) {
         try {
           locoRef.current.destroy()
-        } catch (e) {}
+        } catch {}
+        locoRef.current = null
+      }
+
+      locoRef.current = new LocomotiveScroll({
+        el: containerRef.current,
+        smooth: true,
+        direction: "vertical",
+        smartphone: { smooth: true },
+        tablet: { smooth: true },
+      })
+    }
+
+    init()
+
+    return () => {
+      mounted = false
+      if (locoRef.current) {
+        try {
+          locoRef.current.destroy()
+        } catch {}
         locoRef.current = null
       }
     }
-  }, [pathname])
+  }, []) // init once
 
-  // Expose update helper if needed
+  // update on navigation
   useEffect(() => {
-    const id = setTimeout(() => (locoRef.current?.update?.()), 200)
-    return () => clearTimeout(id)
+    const t = setTimeout(() => locoRef.current?.update?.(), 200)
+    return () => clearTimeout(t)
   }, [pathname])
 
   return (
