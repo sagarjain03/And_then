@@ -32,6 +32,8 @@ const StorySchema = new Schema(
       },
     ],
     isMultiplayer: { type: Boolean, default: false },
+    // Room association enables dashboards to surface a Rejoin link
+    roomCode: { type: String, default: null },
     savedAt: { type: Date, default: Date.now },
   },
   { timestamps: true },

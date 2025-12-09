@@ -24,19 +24,40 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Room not found" }, { status: 404 })
     }
 
+    const blocked = (room.blockedRejoinUsers || []).some((id: any) => id.toString() === userId)
+    if (blocked) {
+      return NextResponse.json(
+        { error: "You chose to exit this room and cannot re-join." },
+        { status: 403 },
+      )
+    }
+
     if (room.status === "completed") {
       return NextResponse.json({ error: "Room is no longer active" }, { status: 400 })
     }
 
-    // Check if user is already in the room
-    const isParticipant = room.participants.some(
-      (p: any) => p.toString() === userId || (p._id && p._id.toString() === userId),
-    )
+    const hostIdString = room.hostId.toString()
+    const userIsCurrentHost = hostIdString === userId
 
-    if (!isParticipant) {
-      // Add user to participants
-      room.participants.push(userId)
+    if (room.hostActive === false) {
+      room.hostId = userId
+      room.hostActive = true
+      room.participants = room.participants.filter(
+        (p: any) => p.toString() !== userId && (p._id ? p._id.toString() !== userId : true),
+      )
       await room.save()
+    } else {
+      const isParticipant = room.participants.some(
+        (p: any) => p.toString() === userId || (p._id && p._id.toString() === userId),
+      )
+
+      if (userIsCurrentHost && !isParticipant) {
+        room.participants.push(userId)
+        await room.save()
+      } else if (!isParticipant && !userIsCurrentHost) {
+        room.participants.push(userId)
+        await room.save()
+      }
     }
 
     return NextResponse.json({
@@ -47,6 +68,8 @@ export async function POST(request: NextRequest) {
         participants: room.participants,
         selectedGenre: room.selectedGenre,
         storyId: room.storyId,
+        hostId: room.hostId,
+        hostActive: room.hostActive,
       },
     })
   } catch (error) {
