@@ -24,6 +24,7 @@ export async function GET(request: NextRequest, context: RouteContext) {
     
     // If not found, check if user is a participant in a multiplayer room with this story
     if (!story) {
+      // Check if user is host or participant in a room with this story
       const room = await Room.findOne({ 
         storyId: id,
         $or: [
@@ -35,6 +36,18 @@ export async function GET(request: NextRequest, context: RouteContext) {
       if (room) {
         // User is part of a room with this story, allow access
         story = await Story.findOne({ _id: id }).lean()
+      } else {
+        // Also check if there's a room with this storyId (even if empty)
+        // This handles the case where everyone left and someone is rejoining
+        const roomWithStory = await Room.findOne({ storyId: id }).lean()
+        if (roomWithStory) {
+          // Check if user is the current host (they might have just rejoined)
+          const isCurrentHost = roomWithStory.hostId && roomWithStory.hostId.toString() === userId
+          if (isCurrentHost) {
+            // User is the current host, allow access to the original story
+            story = await Story.findOne({ _id: id }).lean()
+          }
+        }
       }
     }
     

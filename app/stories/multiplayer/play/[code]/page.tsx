@@ -348,7 +348,16 @@ export default function MultiplayerStoryPlayPage() {
   }, [story, isMusicEnabled])
 
   const handleVoteChoice = async (choiceId: string) => {
-    if (!roomCode || isVoting) return
+    if (!roomCode || isVoting || !room) return
+    
+    // Prevent voting when all have voted and we're waiting for processing
+    const roomIsProcessingCheck = room.isProcessing || false
+    if (isProcessing || roomIsProcessingCheck) {
+      return
+    }
+    
+    // Quick check: if room is processing, don't allow voting
+    // The UI buttons are also disabled via waitingForProcessing, but this is a safeguard
 
     setIsVoting(true)
     try {
@@ -543,6 +552,9 @@ export default function MultiplayerStoryPlayPage() {
     ? room.participants.length + (room.hostActive !== false && !hostInParticipants ? 1 : 0)
     : 0
   const allVoted = room && totalPlayers > 0 && totalVotes >= totalPlayers
+  const roomIsProcessing = room?.isProcessing || false
+  // Check if all have voted but processing hasn't started yet
+  const waitingForProcessing = allVoted && !isProcessing && !roomIsProcessing && !requiresHostSelection
 
   const choicesToShow =
     isTieBreakerVoting && tiedChoices.length > 0
@@ -614,7 +626,7 @@ export default function MultiplayerStoryPlayPage() {
         } else {
           autoProcessRef.current = false
         }
-      }, 500)
+      }, 100)
       return () => {
         clearTimeout(timer)
         if (autoProcessRef.current) {
@@ -844,16 +856,24 @@ export default function MultiplayerStoryPlayPage() {
                 >
                   <Save className="w-4 h-4" />
                 </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => handleExitClick()}
-                  className={cn("hover:bg-black/5", theme.styles.text)}
-                  title="Exit Room"
-                  disabled={isLeavingRoom || isSavingAndExiting}
-                >
-                  <LogOut className="w-4 h-4" />
-                </Button>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => handleExitClick()}
+                      className={cn("hover:bg-black/5", theme.styles.text)}
+                      disabled={isLeavingRoom || isSavingAndExiting}
+                    >
+                      <LogOut className="w-4 h-4" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent side="bottom" className="max-w-[300px]">
+                    <p className="text-xs">
+                      If you exit by mistake or due to internet issues, you can rejoin the room using the room code from your dashboard.
+                    </p>
+                  </TooltipContent>
+                </Tooltip>
               </div>
             </div>
 
@@ -938,12 +958,13 @@ export default function MultiplayerStoryPlayPage() {
                       <button
                         key={choice.id}
                         onClick={() => handleVoteChoice(choice.id)}
-                        disabled={isVoting || isProcessing}
+                        disabled={isVoting || isProcessing || waitingForProcessing}
                         className={cn(
                           "w-full text-left p-6 rounded-lg border-2 transition-all duration-200 transform hover:-translate-y-1 hover:shadow-md active:translate-y-0 group relative",
                           theme.styles.choice,
                           theme.styles.text,
                           isUserVote && "ring-2 ring-primary",
+                          (isVoting || isProcessing || waitingForProcessing) && "opacity-60 cursor-not-allowed",
                         )}
                       >
                         <div className="flex items-start gap-4">
@@ -988,12 +1009,13 @@ export default function MultiplayerStoryPlayPage() {
                         <button
                           key={choice.id}
                           onClick={() => handleVoteChoice(choice.id)}
-                          disabled={isVoting || isProcessing}
+                          disabled={isVoting || isProcessing || waitingForProcessing}
                           className={cn(
                             "w-full text-left p-6 rounded-lg border-2 transition-all duration-200 transform hover:-translate-y-1 hover:shadow-md active:translate-y-0 group relative",
                             theme.styles.choice,
                             theme.styles.text,
                             isUserVote && "ring-2 ring-primary",
+                            (isVoting || isProcessing || waitingForProcessing) && "opacity-60 cursor-not-allowed",
                           )}
                         >
                           <div className="flex items-start gap-4">
@@ -1079,10 +1101,28 @@ export default function MultiplayerStoryPlayPage() {
                   </div>
                 )}
 
+                {!isTieBreakerVoting && waitingForProcessing && (
+                  <div className="mt-4 text-center">
+                    <Loader2 className={cn("w-5 h-5 animate-spin mx-auto mb-2", theme.styles.text)} />
+                    <p className={cn("text-sm font-medium", theme.styles.text)}>
+                      All votes received! Calculating results...
+                    </p>
+                  </div>
+                )}
+
                 {isTieBreakerVoting && !requiresHostSelection && !allVoted && (
                   <div className="mt-4 text-center">
                     <p className={cn("text-sm opacity-60", theme.styles.text)}>
                       Waiting for all players to vote on tied choices... ({totalVotes}/{totalPlayers})
+                    </p>
+                  </div>
+                )}
+
+                {isTieBreakerVoting && !requiresHostSelection && waitingForProcessing && (
+                  <div className="mt-4 text-center">
+                    <Loader2 className={cn("w-5 h-5 animate-spin mx-auto mb-2", theme.styles.text)} />
+                    <p className={cn("text-sm font-medium", theme.styles.text)}>
+                      All votes received! Calculating results...
                     </p>
                   </div>
                 )}

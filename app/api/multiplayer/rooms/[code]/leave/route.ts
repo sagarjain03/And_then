@@ -113,6 +113,18 @@ export async function POST(
       if (!alreadyBlocked) {
         room.blockedRejoinUsers.push(userId)
       }
+      
+      // Delete any existing saved story for this user and roomCode
+      // This ensures the story card and rejoin option don't appear on the dashboard
+      try {
+        await Story.deleteMany({
+          userId,
+          roomCode: room.roomCode,
+          isMultiplayer: true,
+        })
+      } catch (error) {
+        console.error(`Error deleting saved story for user ${userId} and room ${room.roomCode}:`, error)
+      }
     }
 
     if (room.choiceVotes) {
@@ -151,6 +163,19 @@ export async function POST(
       room.participants = room.participants.filter(
         (p: any) => p.toString() !== userId && (p._id ? p._id.toString() !== userId : true),
       )
+    }
+
+    // Check if everyone has left the room (no participants and host is inactive)
+    const willBeEmpty = room.participants.length === 0 && room.hostActive === false
+
+    if (willBeEmpty) {
+      // When everyone leaves, stop the story at the current page
+      // Clear votes and processing state so the story stops progressing
+      room.choiceVotes = new Map()
+      room.genreVotes = new Map()
+      room.isProcessing = false
+      room.tiedChoicesForVoting = []
+      // Keep the story state preserved so it can resume when someone rejoins
     }
 
     room.storyId = preservedStoryId
