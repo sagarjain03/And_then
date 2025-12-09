@@ -2,7 +2,7 @@
   <img src="public/logo.png" alt="AndThen Logo" width="200" height="200" style="border-radius: 20px;" />
 </p>
 
-<h1 align="center">✨ AndThen - AI-Powered Interactive Storytelling ✨</h1>
+<h1 align="center">✨ AndThen AI Powered Interactive Storytelling ✨</h1>
 
 <p align="center">
   <strong>Where Your Personality Shapes Your Adventure</strong>
@@ -311,9 +311,9 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 
 <p align="center">
-  Made with ❤️ by Sagar, Yogesh and Sneha
+  Made with ❤️ by Sagar, Yogesh, Sneha
 </p>
 
 <p align="center">
-  <strong>Start your personalized adventure today!!</strong>
+  <strong>Start your personalized adventure today !!</strong>
 </p>
