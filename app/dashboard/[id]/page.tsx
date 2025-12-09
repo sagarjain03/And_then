@@ -174,7 +174,6 @@ export default function DashboardPage() {
   }
 
   const levelProgress = ((stats.xp % 100) / 100) * 100
-
   return (
     <div className="min-h-screen bg-parchment dark:bg-[#1a0b05] relative overflow-x-hidden text-[#2a1a10] dark:text-[#d4af37] transition-colors duration-300">
       {/* Background Texture Overlay */}
