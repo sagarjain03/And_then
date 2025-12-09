@@ -143,76 +143,6 @@ graph LR
 
 ---
 
-## 📁 Project Structure
-
-```
-AndThen/
-├── 📂 app/                      # Next.js App Router
-│   ├── 📄 page.tsx              # Landing page
-│   ├── 📄 layout.tsx            # Root layout with providers
-│   ├── 📂 auth/                 # Authentication pages
-│   │   ├── login/               # Login page
-│   │   └── signup/              # Registration page
-│   ├── 📂 test/                 # Personality assessment
-│   │   ├── page.tsx             # Question flow
-│   │   └── results/             # Score & archetype display
-│   ├── 📂 stories/              # Story features
-│   │   ├── new/                 # Genre selection
-│   │   ├── play/                # Main gameplay interface
-│   │   ├── complete/            # Story completion screen
-│   │   └── multiplayer/         # Collaborative stories
-│   ├── 📂 dashboard/            # User stats & saved stories
-│   └── 📂 api/                  # Backend API routes
-│       ├── auth/                # Login, signup, session
-│       ├── stories/             # Generate, save, list
-│       ├── personality/         # Save test results
-│       └── gamification/        # XP, badges, levels
-│
-├── 📂 components/               # React components
-│   ├── 📂 ui/                   # shadcn/ui components
-│   ├── book-layout.tsx          # Story reading interface
-│   ├── theme-toggle.tsx         # Dark/light mode switch
-│   └── theme-provider.tsx       # Theme context
-│
-├── 📂 lib/                      # Core logic & utilities
-│   ├── personality-data.ts      # Test questions & scoring
-│   ├── story-data.ts            # Genres & prompt generation
-│   ├── story-templates.ts       # Fallback story content
-│   ├── book-themes.ts           # Genre visual themes
-│   ├── gamification.ts          # XP & badge system
-│   ├── auth.ts                  # JWT & password utilities
-│   ├── db-schema.sql            # PostgreSQL schema (planned)
-│   └── db-utils.ts              # Database helpers
-│
-├── 📂 models/                   # Mongoose schemas
-│   ├── user.model.ts            # User accounts
-│   ├── story.model.ts           # Saved stories
-│   ├── personalityProfile.model.ts # Test results
-│   ├── userProgress.model.ts    # Gamification stats
-│   └── room.model.ts            # Multiplayer rooms
-│
-├── 📂 db/                       # Database configuration
-│   └── dbconfig.ts              # MongoDB connection
-│
-├── 📂 hooks/                    # Custom React hooks
-│   ├── use-toast.ts             # Toast notifications
-│   ├── use-mobile.ts            # Mobile detection
-│   └── use-window-size.ts       # Viewport tracking
-│
-├── 📂 helpers/                  # Utility functions
-│   └── getDataFromToken.ts      # JWT extraction
-│
-├── 📂 public/                   # Static assets
-│   ├── logo.png                 # App logo
-│   ├── 📂 themes/               # Genre border/background images
-│   └── 📂 audio/                # Sound effects
-│
-└── 📂 types/                    # TypeScript definitions
-    └── decodedToken.ts          # JWT payload type
-```
-
----
-
 ## 🚀 Getting Started
 
 ### Prerequisites
@@ -378,16 +308,10 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-## 💬 Support
 
-For issues, questions, or suggestions:
-- Open an [issue](https://github.com/yourusername/and-then/issues)
-- Start a [discussion](https://github.com/yourusername/and-then/discussions)
-
----
 
 <p align="center">
-  Made with ❤️ and AI
+  Made with ❤️ by Sagar,Yogesh and Sneha
 </p>
 
 <p align="center">

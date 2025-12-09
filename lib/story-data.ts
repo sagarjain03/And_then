@@ -35,6 +35,10 @@ export interface Story {
   createdAt: Date
   isStoryComplete?: boolean
   choiceHistory?: StoryChoiceHistoryEntry[]
+  // Multiplayer extras
+  isMultiplayer?: boolean
+  roomCode?: string | null
+  savedAt?: Date
 }
 
 export const STORY_GENRES: StoryGenre[] = [

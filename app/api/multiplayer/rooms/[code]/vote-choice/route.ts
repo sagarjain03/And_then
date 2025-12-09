@@ -34,16 +34,26 @@ export async function POST(
       return NextResponse.json({ error: "Room is not in playing phase" }, { status: 400 })
     }
 
-    // Check if user is a participant
     const isParticipant = room.participants.some(
       (p: any) => p.toString() === userId || (p._id && p._id.toString() === userId),
     )
+    const isHost = room.hostId.toString() === userId
 
-    if (!isParticipant) {
+    if (!isParticipant && !isHost) {
       return NextResponse.json({ error: "You are not a participant in this room" }, { status: 403 })
     }
 
-    // Remove user's previous vote for this choice index if any
+    if (room.tiedChoicesForVoting && room.tiedChoicesForVoting.length > 0) {
+      if (!room.tiedChoicesForVoting.includes(choiceId)) {
+        return NextResponse.json(
+          {
+            error: "You can only vote on the tied choices during tie-breaker voting",
+          },
+          { status: 400 },
+        )
+      }
+    }
+
     if (room.choiceVotes) {
       room.choiceVotes.forEach((userIds: any[], cId: string) => {
         const filtered = userIds.filter((id: any) => id.toString() !== userId)
@@ -55,7 +65,6 @@ export async function POST(
       })
     }
 
-    // Add new vote
     if (!room.choiceVotes) {
       room.choiceVotes = new Map()
     }
@@ -67,7 +76,6 @@ export async function POST(
 
     await room.save()
 
-    // Convert choiceVotes Map to object for response
     const choiceVotesObj: Record<string, string[]> = {}
     room.choiceVotes.forEach((userIds: any[], cId: string) => {
       choiceVotesObj[cId] = userIds.map((id: any) => id.toString())

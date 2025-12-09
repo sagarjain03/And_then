@@ -15,6 +15,9 @@ export async function POST(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
+    const body = (await request.json().catch(() => ({}))) as { selectedGenre?: string | null }
+    const selectedGenreFromHost = body?.selectedGenre
+
     const { code } = await params
     const roomCode = code.toUpperCase()
 
@@ -30,14 +33,28 @@ export async function POST(
       return NextResponse.json({ error: "Room is not ready to start story" }, { status: 400 })
     }
 
-    // Check if user is host
     if (room.hostId.toString() !== userId) {
       return NextResponse.json({ error: "Only the host can start the story" }, { status: 403 })
     }
 
-    // Determine selected genre from votes
     if (!room.genreVotes || room.genreVotes.size === 0) {
       return NextResponse.json({ error: "No genre votes recorded" }, { status: 400 })
+    }
+
+    const uniqueVoters = new Set<string>()
+    room.genreVotes.forEach((userIds: any[]) => {
+      userIds.forEach((id: any) => uniqueVoters.add(id.toString()))
+    })
+    const totalParticipants = room.participants.length
+    if (uniqueVoters.size < totalParticipants) {
+      return NextResponse.json(
+        {
+          error: "All participants must vote before starting the story",
+          participants: totalParticipants,
+          voters: uniqueVoters.size,
+        },
+        { status: 400 },
+      )
     }
 
     let maxVotes = 0
@@ -53,15 +70,28 @@ export async function POST(
       }
     })
 
-    // Check for ties - if there's a tie, use host's vote as tiebreaker
     const tiedGenres = genreVoteCounts.filter((g) => g.votes === maxVotes)
     if (tiedGenres.length > 1) {
-      // Find host's vote
-      const hostVote = Array.from(room.genreVotes.entries()).find(([genreId, userIds]) => {
-        return userIds.some((id: any) => id.toString() === room.hostId.toString())
-      })
-      if (hostVote) {
-        selectedGenre = hostVote[0]
+      if (selectedGenreFromHost) {
+        const isValidChoice = tiedGenres.some((g) => g.genreId === selectedGenreFromHost)
+        if (!isValidChoice) {
+          return NextResponse.json(
+            {
+              error: "Selected genre is not part of the tie",
+              tiedGenres,
+            },
+            { status: 400 },
+          )
+        }
+        selectedGenre = selectedGenreFromHost
+      } else {
+        return NextResponse.json(
+          {
+            error: "Tie detected. Host must select a genre to proceed.",
+            tiedGenres,
+          },
+          { status: 400 },
+        )
       }
     }
 
@@ -69,7 +99,6 @@ export async function POST(
       return NextResponse.json({ error: "Could not determine selected genre" }, { status: 400 })
     }
 
-    // Use default/neutral personality traits for multiplayer (no user-specific character)
     const personalityTraits: Record<string, number> = {
       conscientiousness: 50,
       neuroticism: 50,
@@ -79,26 +108,22 @@ export async function POST(
       honestyHumility: 50,
     }
 
-    // Generate initial story
     const genre = STORY_GENRES.find((g) => g.id === selectedGenre)
     if (!genre) {
       return NextResponse.json({ error: "Invalid genre selected" }, { status: 400 })
     }
 
-    // Call story generation API
-    // For server-side API routes, we need to use the full URL
-    const host = request.headers.get('host') || 'localhost:3000'
-    const protocol = request.headers.get('x-forwarded-proto') || 'http'
+    const host = request.headers.get("host") || "localhost:3000"
+    const protocol = request.headers.get("x-forwarded-proto") || "http"
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || `${protocol}://${host}`
-    
+
     const generateResponse = await fetch(`${baseUrl}/api/stories/generate`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         genreId: selectedGenre,
         personalityTraits,
-        isMultiplayer: true, // Flag for second-person narrative
-        // No character for multiplayer - use generic story
+        isMultiplayer: true,
       }),
     })
 
@@ -108,21 +133,18 @@ export async function POST(
 
     const storyData = await generateResponse.json()
 
-    // Create story document - use host as story owner
     const story = await Story.create({
-      userId: room.hostId, // Use host as story owner
+      userId: room.hostId,
       title: `${genre.name} Adventure`,
       genre: selectedGenre,
       content: storyData.content,
       choices: storyData.choices,
       currentChoiceIndex: 0,
       personalityTraits,
-      // No character - multiplayer uses generic story
       isStoryComplete: storyData.isStoryComplete ?? false,
       choiceHistory: [],
     })
 
-    // Update room
     room.selectedGenre = selectedGenre
     room.storyId = story._id
     room.status = "playing"
