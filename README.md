@@ -315,5 +315,5 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 </p>
 
 <p align="center">
-  <strong>Start your personalized adventure today !!</strong>
+  <strong>Start your personalized adventure today!!</strong>
 </p>
