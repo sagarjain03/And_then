@@ -81,6 +81,28 @@ export default function RoomLobbyPage() {
     }
   }
 
+  const handleLeaveRoom = async () => {
+    if (!roomCode) return
+    try {
+      const res = await fetch(`/api/multiplayer/rooms/${roomCode}/leave`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ saveAndExit: false }),
+      })
+
+      if (!res.ok) {
+        // Even if it fails, we should probably redirect the user away
+        // But let's show an error just in case
+        console.error("Failed to leave room cleanly")
+      }
+      router.push("/stories/multiplayer")
+      toast.success("Left the room")
+    } catch (error) {
+      console.error("Error leaving room:", error)
+      router.push("/stories/multiplayer")
+    }
+  }
+
   useEffect(() => {
     if (!roomCode) return
 
@@ -356,7 +378,15 @@ export default function RoomLobbyPage() {
         ) : (
           <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-12 relative z-10">
             {/* Header */}
-            <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-12">
+            <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-12 relative">
+              <button
+                onClick={handleLeaveRoom}
+                className="absolute left-0 top-0 sm:left-4 sm:top-4 text-[10px] uppercase tracking-[0.2em] border border-[#d4af37]/30 bg-[#1a0b05] text-[#d4af37] px-4 py-2 rounded hover:bg-[#d4af37] hover:text-[#1a0b05] transition-all font-sans font-bold flex items-center gap-2 z-20 group"
+              >
+                <ArrowLeft className="w-3 h-3 group-hover:-translate-x-1 transition-transform" />
+                <span className="hidden sm:inline">Leave Room</span>
+              </button>
+
               <div className="inline-block p-4 border border-[#d4af37]/30 rounded-full mb-6 bg-[#2a1a10]">
                 <Users className="w-8 h-8 text-[#d4af37]" />
               </div>
