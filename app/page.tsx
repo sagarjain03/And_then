@@ -7,13 +7,13 @@ import { Play, ArrowRight, Sparkles as SparklesIcon, Menu } from "lucide-react";
 
 export default function GhibliHomePage() {
   return (
-    <div className="h-screen w-full overflow-hidden bg-[#F2E8DC] relative flex flex-col md:flex-row font-serif selection:bg-[#D4AF37]/30">
+    <div className="min-h-screen md:h-screen w-full overflow-x-hidden md:overflow-hidden bg-[#F2E8DC] relative flex flex-col md:flex-row font-serif selection:bg-[#D4AF37]/30">
       {/* DIAGONAL SPLIT */}
       {/* LEFT CONTENT SECTION */}
       <div className="w-full md:w-[60%] h-full flex flex-col justify-center px-8 md:px-20 z-20 relative bg-[#F2E8DC]">
         {/* Navigation Logo */}
         <nav className="absolute top-8 left-0 right-0 flex items-center justify-between px-8 md:px-20 z-30">
-          <div className="hidden md:flex gap-8 text-[#8A7968] text-xs font-bold tracking-widest font-sans uppercase">
+          <div className="flex md:flex gap-8 text-[#8A7968] text-xs font-bold tracking-widest font-sans uppercase">
             <Link href="/stories" className="hover:text-[#5C4033] transition-colors relative group flex flex-col items-center">
               <SparklesIcon className="w-4 h-4 text-[#D4AF37]" />
               Your
@@ -28,9 +28,9 @@ export default function GhibliHomePage() {
             </div>
           </div>
           {/* Placeholder for right-aligned items if needed, to balance justify-between */}
-          
+
           <div className="hidden md:flex w-[70px]"></div> {/* Adjust width as needed to balance the 'Stories' link */}
-          <div className="hidden md:flex gap-8 text-[#8A7968] text-xs font-bold tracking-widest font-sans uppercase">
+          <div className="flex md:flex gap-8 text-[#8A7968] text-xs font-bold tracking-widest font-sans uppercase">
             <Link href="/stories" className="hover:text-[#5C4033] transition-colors relative group flex flex-col items-center">
               <SparklesIcon className="w-4 h-4 text-[#D4AF37]" />
               Story
@@ -40,7 +40,7 @@ export default function GhibliHomePage() {
         </nav>
 
         {/* Main Typography */}
-        <div className="mt-[-40px] relative z-20 max-w-2xl">
+        <div className="mt-32 md:mt-[-40px] relative z-20 max-w-2xl">
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -51,7 +51,7 @@ export default function GhibliHomePage() {
             AI-Powered Interactive Fiction
           </motion.div>
 
-          
+
 
           {/* Main title */}
           <h1 className="text-6xl md:text-8xl font-bold text-[#4A332A] leading-[1.05] mb-8 tracking-tight">
@@ -112,7 +112,7 @@ export default function GhibliHomePage() {
         initial={{ opacity: 0, scale: 0.9, y: 50 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         transition={{ duration: 1.2, ease: "easeOut", delay: 0.3 }}
-        className="absolute -bottom-10 left-[60%] -translate-x-1/2 z-30 h-[100vh] w-auto pointer-events-none"
+        className="absolute -bottom-10 left-[60%] -translate-x-1/2 z-30 h-[100vh] w-auto pointer-events-none hidden md:block"
       >
         {/* Character Image */}
         <img
@@ -127,7 +127,7 @@ export default function GhibliHomePage() {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 1.5, ease: "easeOut" }}
-        className="absolute top-0 right-0 w-full md:w-[50%] h-full z-10 bg-[#1a0b05]"
+        className="absolute top-0 right-0 w-full md:w-[50%] h-full z-10 bg-[#1a0b05] hidden md:block"
         style={{ clipPath: "polygon(40% 0, 100% 0, 100% 100%, 20% 100%)" }}
       >
         <div className="relative w-full h-full overflow-hidden">
@@ -145,7 +145,7 @@ export default function GhibliHomePage() {
       </motion.div>
 
       {/* RIGHT SIDE VERTICAL MENU */}
-      <div className="absolute right-0 top-0 h-full w-20 md:w-24 z-50 flex flex-col items-center py-10 bg-gradient-to-l from-[#1a0b05]/80 to-transparent">
+      <div className="absolute right-0 top-0 h-full w-20 md:w-24 z-50 flex flex-col items-center py-10 bg-gradient-to-l from-[#1a0b05]/80 to-transparent hidden md:flex">
         {/* Hamburger Icon (placeholder) */}
         {/* Vertical Text Links */}
         <div className="flex flex-col gap-8 items-center justify-center h-full">

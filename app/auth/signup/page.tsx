@@ -97,13 +97,13 @@ export default function SignupPage() {
   }
 
   return (
-    <div className="h-screen w-full overflow-hidden bg-[#F2E8DC] relative flex flex-col md:flex-row font-serif selection:bg-[#D4AF37]/30">
+    <div className="min-h-screen md:h-screen w-full overflow-x-hidden md:overflow-hidden bg-[#F2E8DC] relative flex flex-col md:flex-row font-serif selection:bg-[#D4AF37]/30">
 
       {/* LEFT CONTENT SECTION (FORM) */}
       <div className="w-full md:w-[60%] h-full flex flex-col justify-center px-8 md:px-20 z-20 relative bg-[#F2E8DC]">
         {/* Navigation Logo */}
         <nav className="absolute top-8 left-0 right-0 flex items-center justify-between px-8 md:px-20 z-30">
-          <div className="hidden md:flex gap-8 text-[#8A7968] text-xs font-bold tracking-widest font-sans uppercase">
+          <div className="flex md:flex gap-8 text-[#8A7968] text-xs font-bold tracking-widest font-sans uppercase">
             <Link href="/" className="hover:text-[#5C4033] transition-colors relative group flex flex-col items-center">
               <SparklesIcon className="w-4 h-4 text-[#D4AF37]" />
               Home
@@ -118,7 +118,7 @@ export default function SignupPage() {
             </div>
           </div>
           <div className="hidden md:flex w-[70px]"></div>
-          <div className="hidden md:flex gap-8 text-[#8A7968] text-xs font-bold tracking-widest font-sans uppercase">
+          <div className="flex md:flex gap-8 text-[#8A7968] text-xs font-bold tracking-widest font-sans uppercase">
             <Link href="/auth/login" className="hover:text-[#5C4033] transition-colors relative group flex flex-col items-center">
               <SparklesIcon className="w-4 h-4 text-[#D4AF37]" />
               Login
@@ -128,7 +128,7 @@ export default function SignupPage() {
         </nav>
 
         {/* Main Form Area */}
-        <div className="mt-[-40px] relative z-20 max-w-2xl">
+        <div className="mt-32 md:mt-[-40px] relative z-20 max-w-2xl">
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
@@ -160,90 +160,90 @@ export default function SignupPage() {
               Create your account and discover narratives shaped by your essence.
             </motion.p>
 
-            <motion.form 
-              onSubmit={handleSignup} 
+            <motion.form
+              onSubmit={handleSignup}
               className="space-y-4"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, ease: "easeOut" }}
             >
               <div className="space-y-1">
-              <Label htmlFor="username" className="text-[#8A7968] text-xs font-bold tracking-widest uppercase">Pen Name</Label>
-              <Input
-                id="username"
-                type="text"
-                placeholder="Storyteller123"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                required
-                className="bg-transparent border-b border-[#8A7968]/30 rounded-none px-0 pl-4 h-10 focus:border-[#D4AF37] text-[#4A332A] font-serif placeholder:text-[#8A7968]/30 focus-visible:ring-0 shadow-none"
-              />
+                <Label htmlFor="username" className="text-[#8A7968] text-xs font-bold tracking-widest uppercase">Pen Name</Label>
+                <Input
+                  id="username"
+                  type="text"
+                  placeholder="Storyteller123"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  required
+                  className="bg-transparent border-b border-[#8A7968]/30 rounded-none px-0 pl-4 h-10 focus:border-[#D4AF37] text-[#4A332A] font-serif placeholder:text-[#8A7968]/30 focus-visible:ring-0 shadow-none"
+                />
               </div>
 
               <div className="space-y-1">
-              <Label htmlFor="email" className="text-[#8A7968] text-xs font-bold tracking-widest uppercase">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="you@story.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                className="bg-transparent border-b border-[#8A7968]/30 rounded-none px-0 pl-4 h-10 focus:border-[#D4AF37] text-[#4A332A] font-serif placeholder:text-[#8A7968]/30 focus-visible:ring-0 shadow-none"
-              />
+                <Label htmlFor="email" className="text-[#8A7968] text-xs font-bold tracking-widest uppercase">Email</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="you@story.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  className="bg-transparent border-b border-[#8A7968]/30 rounded-none px-0 pl-4 h-10 focus:border-[#D4AF37] text-[#4A332A] font-serif placeholder:text-[#8A7968]/30 focus-visible:ring-0 shadow-none"
+                />
               </div>
 
               <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-1">
-                <Label htmlFor="password" className="text-[#8A7968] text-xs font-bold tracking-widest uppercase">Password</Label>
-                <Input
-                id="password"
-                type="password"
-                placeholder="••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                className="bg-transparent border-b border-[#8A7968]/30 rounded-none px-0 pl-4 h-10 focus:border-[#D4AF37] text-[#4A332A] font-serif placeholder:text-[#8A7968]/30 focus-visible:ring-0 shadow-none"
-                />
-              </div>
-              <div className="space-y-1">
-                <Label htmlFor="confirmPassword" className="text-[#8A7968] text-xs font-bold tracking-widest uppercase">Confirm</Label>
-                <Input
-                id="confirmPassword"
-                type="password"
-                placeholder="••••••••"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                required
-                className="bg-transparent border-b border-[#8A7968]/30 rounded-none px-0 pl-4 h-10 focus:border-[#D4AF37] text-[#4A332A] font-serif placeholder:text-[#8A7968]/30 focus-visible:ring-0 shadow-none"
-                />
-              </div>
+                <div className="space-y-1">
+                  <Label htmlFor="password" className="text-[#8A7968] text-xs font-bold tracking-widest uppercase">Password</Label>
+                  <Input
+                    id="password"
+                    type="password"
+                    placeholder="••••••••"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    className="bg-transparent border-b border-[#8A7968]/30 rounded-none px-0 pl-4 h-10 focus:border-[#D4AF37] text-[#4A332A] font-serif placeholder:text-[#8A7968]/30 focus-visible:ring-0 shadow-none"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label htmlFor="confirmPassword" className="text-[#8A7968] text-xs font-bold tracking-widest uppercase">Confirm</Label>
+                  <Input
+                    id="confirmPassword"
+                    type="password"
+                    placeholder="••••••••"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    required
+                    className="bg-transparent border-b border-[#8A7968]/30 rounded-none px-0 pl-4 h-10 focus:border-[#D4AF37] text-[#4A332A] font-serif placeholder:text-[#8A7968]/30 focus-visible:ring-0 shadow-none"
+                  />
+                </div>
               </div>
 
               {error && <p className="text-xs text-red-500 font-serif italic">{error}</p>}
 
               <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.8, duration: 0.8 }}
-              className="flex items-center gap-6 pt-2"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.8, duration: 0.8 }}
+                className="flex items-center gap-6 pt-2"
               >
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                type="submit"
-                disabled={isLoading}
-                className="bg-[#4A332A] text-[#F2E8DC] px-8 py-4 rounded-xl shadow-xl transition-all flex items-center gap-3 font-sans font-bold tracking-wider text-sm hover:bg-[#2a1a10] disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {isLoading ? (
-                <span className="flex items-center gap-2">
-                  <Feather className="w-4 h-4 animate-spin" />
-                  Creating...
-                </span>
-                ) : (
-                <>CREATE ACCOUNT <ArrowRight className="w-4 h-4 ml-1" /></>
-                )}
-              </motion.button>
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  type="submit"
+                  disabled={isLoading}
+                  className="bg-[#4A332A] text-[#F2E8DC] px-8 py-4 rounded-xl shadow-xl transition-all flex items-center gap-3 font-sans font-bold tracking-wider text-sm hover:bg-[#2a1a10] disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isLoading ? (
+                    <span className="flex items-center gap-2">
+                      <Feather className="w-4 h-4 animate-spin" />
+                      Creating...
+                    </span>
+                  ) : (
+                    <>CREATE ACCOUNT <ArrowRight className="w-4 h-4 ml-1" /></>
+                  )}
+                </motion.button>
               </motion.div>
             </motion.form>
 
@@ -274,7 +274,7 @@ export default function SignupPage() {
         initial={{ opacity: 0, scale: 0.9, y: 50 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         transition={{ duration: 1.2, ease: "easeOut", delay: 0.3 }}
-        className="absolute -bottom-10 left-[60%] -translate-x-1/2 z-30 h-[100vh] w-auto pointer-events-none"
+        className="absolute -bottom-10 left-[60%] -translate-x-1/2 z-30 h-[100vh] w-auto pointer-events-none hidden md:block"
       >
         {/* Character Image */}
         <img
@@ -289,7 +289,7 @@ export default function SignupPage() {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 1.5, ease: "easeOut" }}
-        className="absolute top-0 right-0 w-full md:w-[50%] h-full z-10 bg-[#1a0b05]"
+        className="absolute top-0 right-0 w-full md:w-[50%] h-full z-10 bg-[#1a0b05] hidden md:block"
         style={{ clipPath: "polygon(40% 0, 100% 0, 100% 100%, 20% 100%)" }}
       >
         <div className="relative w-full h-full overflow-hidden">
@@ -307,7 +307,7 @@ export default function SignupPage() {
       </motion.div>
 
       {/* RIGHT SIDE VERTICAL MENU */}
-      <div className="absolute right-0 top-0 h-full w-20 md:w-24 z-50 flex flex-col items-center py-10 bg-gradient-to-l from-[#1a0b05]/80 to-transparent">
+      <div className="absolute right-0 top-0 h-full w-20 md:w-24 z-50 flex flex-col items-center py-10 bg-gradient-to-l from-[#1a0b05]/80 to-transparent hidden md:flex">
         <div className="flex flex-col gap-8 items-center justify-center h-full">
           <Link href="/">
             <div className="writing-vertical-rl text-[#D4AF37] font-bold tracking-[0.3em] text-xs uppercase hover:text-[#F2E8DC] transition-colors cursor-pointer py-4 border-l border-transparent">
