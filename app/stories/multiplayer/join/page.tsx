@@ -3,7 +3,6 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { motion } from "framer-motion"
-import { StorytellerCard } from "@/components/ui/storyteller-card"
 import { NeonButton } from "@/components/ui/neon-button"
 import { Input } from "@/components/ui/input"
 import { Scroll, Loader2, Search } from "lucide-react"
@@ -46,11 +45,19 @@ export default function JoinRoomPage() {
   }
 
   return (
-    <div className="min-h-screen bg-parchment dark:bg-[#1a0b05] relative overflow-hidden transition-colors duration-300">
-      {/* Background Texture Overlay */}
-      <div className="fixed inset-0 pointer-events-none opacity-50 z-0 bg-[url('https://www.transparenttextures.com/patterns/aged-paper.png')] dark:bg-[url('https://www.transparenttextures.com/patterns/black-scales.png')] dark:opacity-30 mix-blend-multiply dark:mix-blend-soft-light transition-all"></div>
+    <div className="min-h-screen bg-[#1a0b05] text-[#d4af37] relative overflow-hidden font-serif selection:bg-[#d4af37] selection:text-[#1a0b05]">
+      {/* Background Texture */}
+      <div
+        className="fixed inset-0 pointer-events-none opacity-20 z-0 bg-repeat"
+        style={{
+          backgroundImage: `url("https://www.transparenttextures.com/patterns/leather.png")`
+        }}
+      ></div>
 
-      <div className="max-w-xl mx-auto px-4 sm:px-6 lg:px-8 py-32 relative z-10 flex flex-col items-center justify-center min-h-screen">
+      {/* Spotlights */}
+      <div className="fixed top-0 left-1/2 -translate-x-1/2 w-full h-[500px] bg-gradient-to-b from-[#d4af37]/5 to-transparent pointer-events-none z-0 blur-3xl"></div>
+
+      <div className="max-w-xl mx-auto px-4 sm:px-6 lg:px-8 py-12 relative z-10 flex flex-col items-center justify-center min-h-screen">
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -62,14 +69,14 @@ export default function JoinRoomPage() {
             transition={{ delay: 0.2 }}
             className="flex justify-center mb-6"
           >
-            <div className="w-20 h-20 rounded-full bg-[#f4e4bc] dark:bg-[#2a1a10] border-4 border-double border-[#d4af37]/60 flex items-center justify-center shadow-lg">
-              <Scroll className="w-10 h-10 text-[#8b4513] dark:text-[#d4af37]" />
+            <div className="w-20 h-20 rounded-full border border-[#d4af37]/30 flex items-center justify-center mb-6 bg-[#1a0b05]">
+              <Scroll className="w-10 h-10 text-[#d4af37]" strokeWidth={1.5} />
             </div>
           </motion.div>
-          <h1 className="text-4xl sm:text-5xl font-serif font-bold mb-4 text-[#2a1a10] dark:text-[#d4af37] drop-shadow-sm">
+          <h1 className="text-4xl sm:text-5xl font-bold mb-4 text-[#d4af37] font-serif tracking-tight drop-shadow-md">
             Join the Tale
           </h1>
-          <p className="text-lg text-[#5c4033] dark:text-[#d4af37]/80 font-serif italic">
+          <p className="text-lg text-[#d4af37]/60 font-serif italic">
             Enter the secret rune to find your party
           </p>
         </motion.div>
@@ -80,7 +87,7 @@ export default function JoinRoomPage() {
           transition={{ delay: 0.3 }}
           className="w-full"
         >
-          <StorytellerCard className="text-center bg-white/80 dark:bg-[#2a1a10]/80 backdrop-blur-sm">
+          <div className="bg-[#2a1a10] border border-[#d4af37]/30 rounded-xl p-8 relative overflow-hidden">
             <div className="mb-8 relative">
               <Input
                 type="text"
@@ -92,7 +99,7 @@ export default function JoinRoomPage() {
                     void handleJoin()
                   }
                 }}
-                className="text-center text-3xl font-serif font-bold tracking-widest uppercase py-6 bg-[#f4e4bc]/30 dark:bg-black/20 border-2 border-[#d4af37]/30 focus:border-[#d4af37] text-[#2a1a10] dark:text-[#d4af37] placeholder:text-[#8b4513]/30 dark:placeholder:text-[#d4af37]/30 rounded-lg"
+                className="text-center text-3xl font-serif font-bold tracking-widest uppercase py-6 bg-[#1a0b05] border-2 border-[#d4af37]/30 focus:border-[#d4af37] text-[#d4af37] placeholder:text-[#d4af37]/20 rounded-lg"
                 maxLength={6}
                 disabled={isJoining}
               />
@@ -100,15 +107,14 @@ export default function JoinRoomPage() {
 
             <div className="flex gap-4 justify-center">
               <Link href="/stories/multiplayer" className="flex-1">
-                <NeonButton variant="outline" className="w-full border-[#8b4513]/30 text-[#8b4513] hover:bg-[#8b4513]/10 dark:border-[#d4af37]/30 dark:text-[#d4af37] dark:hover:bg-[#d4af37]/10">
+                <button className="w-full text-[10px] uppercase tracking-[0.2em] border border-[#d4af37]/30 px-6 py-3 rounded hover:bg-[#d4af37] hover:text-[#1a0b05] transition-all font-sans font-bold">
                   Return
-                </NeonButton>
+                </button>
               </Link>
-              <NeonButton
-                glowColor="gold"
+              <button
                 onClick={handleJoin}
                 disabled={isJoining || !roomCode.trim()}
-                className="flex-[2]"
+                className="flex-[2] text-[10px] uppercase tracking-[0.2em] border border-[#d4af37]/30 px-6 py-3 rounded hover:bg-[#d4af37] hover:text-[#1a0b05] transition-all font-sans font-bold disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
               >
                 {isJoining ? (
                   <>
@@ -121,9 +127,9 @@ export default function JoinRoomPage() {
                     Seek Audience
                   </>
                 )}
-              </NeonButton>
+              </button>
             </div>
-          </StorytellerCard>
+          </div>
         </motion.div>
       </div>
     </div>

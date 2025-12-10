@@ -149,7 +149,7 @@ export function MultiplayerChat({ roomCode, currentUserId, messages, onMessageSe
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0, opacity: 0 }}
             onClick={() => setIsOpen(true)}
-            className="fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full bg-primary text-primary-foreground shadow-lg hover:shadow-xl transition-shadow flex items-center justify-center cursor-pointer hover:scale-110 active:scale-95"
+            className="fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full bg-[#1a0b05] border-2 border-[#d4af37] text-[#d4af37] shadow-[0_0_15px_rgba(212,175,55,0.3)] hover:shadow-[0_0_25px_rgba(212,175,55,0.5)] transition-all flex items-center justify-center cursor-pointer hover:scale-110 active:scale-95"
             aria-label="Open chat"
           >
             <MessageCircle className="w-6 h-6" />
@@ -171,40 +171,45 @@ export function MultiplayerChat({ roomCode, currentUserId, messages, onMessageSe
               zIndex: 50,
               cursor: isDragging ? "grabbing" : "default",
             }}
-            className="w-80 h-96 bg-background border border-border rounded-lg shadow-2xl flex flex-col min-h-0"
+            className="w-80 h-96 bg-[#1a0b05] border-2 border-[#d4af37] rounded-xl shadow-2xl flex flex-col min-h-0 overflow-hidden"
           >
             <div
               onMouseDown={handleMouseDown}
-              className="flex items-center justify-between p-4 border-b border-border bg-muted/50 cursor-grab active:cursor-grabbing select-none"
+              className="flex items-center justify-between p-4 border-b border-[#d4af37]/30 bg-[#2a1a10] cursor-grab active:cursor-grabbing select-none"
             >
               <div className="flex items-center gap-2">
-                <MessageCircle className="w-4 h-4 text-primary" />
-                <h3 className="font-semibold text-sm">Group Chat</h3>
+                <MessageCircle className="w-4 h-4 text-[#d4af37]" />
+                <h3 className="font-serif font-bold text-[#d4af37] uppercase tracking-wider text-sm">Fellowship Chat</h3>
               </div>
-              <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => setIsOpen(false)}>
+              <button
+                className="h-6 w-6 flex items-center justify-center text-[#d4af37] hover:text-[#f4e4bc] transition-colors"
+                onClick={() => setIsOpen(false)}
+              >
                 <X className="w-4 h-4" />
-              </Button>
+              </button>
             </div>
 
-            <ScrollArea className="flex-1 min-h-0 h-full p-4">
+            <ScrollArea className="flex-1 min-h-0 h-full p-4 bg-[#1a0b05]">
               <div className="space-y-3">
                 {sortedMessages.length === 0 ? (
-                  <div className="text-center text-muted-foreground text-sm py-8">No messages yet. Start the conversation!</div>
+                  <div className="text-center text-[#d4af37]/50 text-xs font-serif italic py-8">The scroll is empty. Speak, friend...</div>
                 ) : (
                   sortedMessages.map((msg, idx) => {
                     const isOwnMessage = msg.userId === currentUserId
                     return (
-                      <div key={idx} className={cn("flex flex-col gap-1", isOwnMessage ? "items-end" : "items-start")}> 
+                      <div key={idx} className={cn("flex flex-col gap-1", isOwnMessage ? "items-end" : "items-start")}>
                         <div
                           className={cn(
-                            "rounded-lg px-3 py-2 max-w-[80%]",
-                            isOwnMessage ? "bg-primary text-primary-foreground" : "bg-muted text-foreground",
+                            "rounded-lg px-3 py-2 max-w-[85%] text-sm font-sans shadow-sm",
+                            isOwnMessage
+                              ? "bg-[#d4af37] text-[#1a0b05] font-bold"
+                              : "bg-[#2a1a10] border border-[#d4af37]/30 text-[#d4af37]"
                           )}
                         >
-                          {!isOwnMessage && <div className="text-xs font-semibold mb-1 opacity-80">{msg.username}</div>}
-                          <div className="text-sm">{msg.message}</div>
+                          {!isOwnMessage && <div className="text-[10px] font-bold uppercase tracking-wider mb-1 opacity-70 border-b border-[#d4af37]/20 pb-0.5">{msg.username}</div>}
+                          <div className="leading-relaxed">{msg.message}</div>
                         </div>
-                        <div className="text-xs text-muted-foreground px-1">{formatTime(msg.timestamp)}</div>
+                        <div className="text-[10px] text-[#d4af37]/40 px-1 font-serif">{formatTime(msg.timestamp)}</div>
                       </div>
                     )
                   })
@@ -213,20 +218,24 @@ export function MultiplayerChat({ roomCode, currentUserId, messages, onMessageSe
               </div>
             </ScrollArea>
 
-            <div className="p-4 border-t border-border shrink-0 bg-background">
+            <div className="p-3 border-t border-[#d4af37]/30 shrink-0 bg-[#2a1a10]">
               <div className="flex gap-2">
-                <Input
+                <input
                   value={inputMessage}
                   onChange={(e) => setInputMessage(e.target.value)}
                   onKeyPress={handleKeyPress}
-                  placeholder="Type a message..."
+                  placeholder="Whisper to the void..."
                   disabled={isSending}
-                  className="flex-1"
+                  className="flex-1 bg-[#1a0b05] border border-[#d4af37]/30 rounded px-3 py-2 text-sm text-[#d4af37] placeholder-[#d4af37]/30 focus:outline-none focus:border-[#d4af37] transition-colors font-sans"
                   maxLength={500}
                 />
-                <Button onClick={handleSendMessage} disabled={!inputMessage.trim() || isSending} size="icon">
-                  <Send className="w-4 h-4" />
-                </Button>
+                <button
+                  onClick={handleSendMessage}
+                  disabled={!inputMessage.trim() || isSending}
+                  className="w-10 h-10 flex items-center justify-center rounded bg-[#d4af37] text-[#1a0b05] hover:bg-[#f4e4bc] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                >
+                  <Send className="w-4 h-4 no-rotate" />
+                </button>
               </div>
             </div>
           </motion.div>

@@ -307,22 +307,25 @@ export default function DashboardPage() {
         </div>
 
         <div className="border-t border-[#d4af37]/20 pt-12">
-          <h2 className="text-3xl font-serif font-bold mb-8 text-[#2a1a10] dark:text-[#d4af37] flex items-center gap-3">
+          <h2 className="text-3xl font-serif font-bold mb-8 text-[#d4af37] flex items-center gap-3">
             <Feather className="w-6 h-6 text-[#d4af37]" />
             Your Library
           </h2>
 
           {singlePlayerStories.length === 0 ? (
-            <StorytellerCard className="py-12 px-6">
-              <div className="text-center">
-                <p className="text-[#5c4033] dark:text-[#d4af37] mb-8 font-serif italic text-lg">
+            <div className="py-12 px-6 bg-[#2a1a10] border border-[#d4af37]/30 rounded-xl relative overflow-hidden group">
+              <div className="absolute inset-0 bg-[#d4af37]/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+              <div className="relative z-10 text-center">
+                <p className="text-[#d4af37]/70 mb-8 font-serif italic text-lg">
                   Every great library starts with a single book. Yours is waiting to be written.
                 </p>
                 <Link href="/stories/new">
-                  <NeonButton glowColor="gold">Start Writing</NeonButton>
+                  <button className="text-[12px] uppercase tracking-[0.2em] border border-[#d4af37] bg-[#d4af37]/10 px-8 py-3 rounded hover:bg-[#d4af37] hover:text-[#1a0b05] transition-all font-sans font-bold shadow-[0_0_15px_rgba(212,175,55,0.1)] hover:shadow-[0_0_25px_rgba(212,175,55,0.3)]">
+                    Start Writing
+                  </button>
                 </Link>
               </div>
-            </StorytellerCard>
+            </div>
           ) : (
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
               {singlePlayerStories.map((story, i) => {
@@ -334,51 +337,43 @@ export default function DashboardPage() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: i * 0.1 }}
                   >
-                    <StorytellerCard className={`flex flex-col h-full hover:shadow-book transition-all hover:-translate-y-1 bg-white/80 dark:bg-[#2a1a10]/80 ${genre?.id === 'fantasy' ? 'border-[#8b4513] border-2 border-double' :
-                      genre?.id === 'scifi' ? 'border-cyan-500/50 border-2' :
-                        genre?.id === 'mystery' ? 'border-slate-600/50 border-2 border-dashed' :
-                          genre?.id === 'romance' ? 'border-pink-400/50 border-2' :
-                            genre?.id === 'adventure' ? 'border-emerald-600/50 border-2 border-dotted' :
-                              'border-light'
-                      }`}>
-                      <div className="flex items-start justify-between mb-4">
-                        <div className={`text-3xl opacity-80 filter drop-shadow-sm ${genre?.id === 'fantasy' ? 'text-[#8b4513]' :
-                          genre?.id === 'scifi' ? 'text-cyan-600' :
-                            genre?.id === 'mystery' ? 'text-slate-700' :
-                              genre?.id === 'romance' ? 'text-pink-600' :
-                                genre?.id === 'adventure' ? 'text-emerald-700' :
-                                  'text-[#8b4513]'
-                          }`}>{genre?.icon}</div>
+                    <div className="flex flex-col h-full bg-[#2a1a10] border border-[#d4af37]/20 rounded-xl p-6 relative overflow-hidden group hover:-translate-y-1 transition-transform duration-300">
+                      <div className="absolute inset-0 bg-gradient-to-br from-[#d4af37]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+
+                      <div className="flex items-start justify-between mb-4 relative z-10">
+                        <div className={`text-3xl opacity-80 filter drop-shadow-[0_0_8px_rgba(212,175,55,0.3)] text-[#d4af37]`}>
+                          {genre?.icon}
+                        </div>
                         <motion.button
                           whileHover={{ scale: 1.1, rotate: 10 }}
                           whileTap={{ scale: 0.9 }}
                           onClick={() => handleDeleteStory(((story as any)._id || story.id) as string)}
-                          className="text-[#8b4513]/50 hover:text-red-500/70 transition-colors"
+                          className="text-[#d4af37]/30 hover:text-red-500 transition-colors"
                         >
                           <Trash2 className="w-4 h-4" />
                         </motion.button>
                       </div>
 
-                      <h3 className="text-xl font-serif font-bold mb-2 text-[#2a1a10] dark:text-[#d4af37] line-clamp-2 leading-tight">
+                      <h3 className="text-xl font-serif font-bold mb-2 text-[#d4af37] line-clamp-2 leading-tight relative z-10">
                         {story.title}
                       </h3>
-                      <div className="inline-block px-2 py-0.5 rounded-sm bg-[#e6d2a0]/30 border border-[#d4af37]/20 text-xs font-serif uppercase tracking-wider text-[#8b4513] dark:text-[#d4af37] mb-4 self-start">
+                      <div className="inline-block px-2 py-1 rounded bg-[#1a0b05] border border-[#d4af37]/30 text-[10px] font-sans uppercase tracking-widest text-[#d4af37]/80 mb-4 self-start relative z-10">
                         {genre?.name}
                       </div>
 
-                      <div className="mt-auto pt-4 flex flex-col gap-4">
-                        <div className="flex items-center justify-between text-xs text-[#5c4033] dark:text-[#d4af37]/70 font-serif border-t border-[#d4af37]/20 pt-3">
+                      <div className="mt-auto pt-4 flex flex-col gap-4 relative z-10">
+                        <div className="flex items-center justify-between text-xs text-[#d4af37]/50 font-serif border-t border-[#d4af37]/10 pt-3">
                           <span>Chapter {story.currentChoiceIndex + 1}</span>
                           <span>{new Date(story.createdAt).toLocaleDateString()}</span>
                         </div>
 
                         <Link href={`/stories/play/${(story as any)._id || story.id}`} onClick={() => handlePlayStory(story)}>
-                          <NeonButton glowColor="gold" className="w-full text-sm py-2">
+                          <button className="w-full text-[10px] uppercase tracking-[0.2em] border border-[#d4af37]/30 bg-[#1a0b05] py-2 rounded hover:bg-[#d4af37] hover:text-[#1a0b05] transition-all font-sans font-bold">
                             Continue Tale
-                          </NeonButton>
+                          </button>
                         </Link>
                       </div>
-                    </StorytellerCard>
+                    </div>
                   </motion.div>
                 )
               })}
@@ -388,22 +383,25 @@ export default function DashboardPage() {
 
         {/* Multiplayer library */}
         <div className="mt-16 border-t border-[#d4af37]/20 pt-12">
-          <h2 className="text-3xl font-serif font-bold mb-8 text-[#2a1a10] dark:text-[#d4af37] flex items-center gap-3">
+          <h2 className="text-3xl font-serif font-bold mb-8 text-[#d4af37] flex items-center gap-3">
             <Users className="w-6 h-6 text-[#d4af37]" />
             Fellowship Library
           </h2>
 
           {multiplayerStories.length === 0 ? (
-            <StorytellerCard className="py-10 px-6 bg-white/70 dark:bg-[#1a0b05]/70">
-              <div className="text-center space-y-4">
-                <p className="text-[#5c4033] dark:text-[#d4af37] font-serif italic text-lg">
+            <div className="py-12 px-6 bg-[#2a1a10] border border-[#d4af37]/30 rounded-xl relative overflow-hidden group">
+              <div className="absolute inset-0 bg-[#d4af37]/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+              <div className="relative z-10 text-center space-y-4">
+                <p className="text-[#d4af37]/70 font-serif italic text-lg">
                   No shared tales yet. Gather your guild and begin a room.
                 </p>
                 <Link href="/stories/multiplayer">
-                  <NeonButton glowColor="gold">Join or Host a Room</NeonButton>
+                  <button className="text-[12px] uppercase tracking-[0.2em] border border-[#d4af37] bg-[#d4af37]/10 px-8 py-3 rounded hover:bg-[#d4af37] hover:text-[#1a0b05] transition-all font-sans font-bold shadow-[0_0_15px_rgba(212,175,55,0.1)] hover:shadow-[0_0_25px_rgba(212,175,55,0.3)]">
+                    Join or Host a Room
+                  </button>
                 </Link>
               </div>
-            </StorytellerCard>
+            </div>
           ) : (
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
               {multiplayerStories.map((story, i) => {
@@ -416,35 +414,11 @@ export default function DashboardPage() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: i * 0.08 }}
                   >
-                    <StorytellerCard className={`flex flex-col h-full bg-white/75 dark:bg-[#2a1a10]/75 hover:shadow-book transition-all hover:-translate-y-1 ${
-                      genre?.id === "fantasy"
-                        ? "border-[#8b4513] border-2 border-double"
-                        : genre?.id === "scifi"
-                          ? "border-cyan-500/50 border-2"
-                          : genre?.id === "mystery"
-                            ? "border-slate-600/50 border-2 border-dashed"
-                            : genre?.id === "romance"
-                              ? "border-pink-400/50 border-2"
-                              : genre?.id === "adventure"
-                                ? "border-emerald-600/50 border-2 border-dotted"
-                                : "border-light"
-                    }`}>
-                      <div className="flex items-start justify-between mb-4">
-                        <div
-                          className={`text-3xl opacity-80 filter drop-shadow-sm ${
-                            genre?.id === "fantasy"
-                              ? "text-[#8b4513]"
-                              : genre?.id === "scifi"
-                                ? "text-cyan-600"
-                                : genre?.id === "mystery"
-                                  ? "text-slate-700"
-                                  : genre?.id === "romance"
-                                    ? "text-pink-600"
-                                    : genre?.id === "adventure"
-                                      ? "text-emerald-700"
-                                      : "text-[#8b4513]"
-                          }`}
-                        >
+                    <div className="flex flex-col h-full bg-[#2a1a10] border border-[#d4af37]/20 rounded-xl p-6 relative overflow-hidden group hover:-translate-y-1 transition-transform duration-300">
+                      <div className="absolute inset-0 bg-gradient-to-br from-[#d4af37]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+
+                      <div className="flex items-start justify-between mb-4 relative z-10">
+                        <div className={`text-3xl opacity-80 filter drop-shadow-[0_0_8px_rgba(212,175,55,0.3)] text-[#d4af37]`}>
                           {genre?.icon}
                         </div>
                         <motion.button
@@ -455,38 +429,38 @@ export default function DashboardPage() {
                               isMultiplayer: true,
                             })
                           }
-                          className="text-[#8b4513]/50 hover:text-red-500/70 transition-colors"
+                          className="text-[#d4af37]/30 hover:text-red-500 transition-colors"
                         >
                           <Trash2 className="w-4 h-4" />
                         </motion.button>
                       </div>
 
-                      <h3 className="text-xl font-serif font-bold mb-2 text-[#2a1a10] dark:text-[#d4af37] line-clamp-2 leading-tight">
+                      <h3 className="text-xl font-serif font-bold mb-2 text-[#d4af37] line-clamp-2 leading-tight relative z-10">
                         {story.title}
                       </h3>
-                      <div className="inline-block px-2 py-0.5 rounded-sm bg-[#e6d2a0]/30 border border-[#d4af37]/20 text-xs font-serif uppercase tracking-wider text-[#8b4513] dark:text-[#d4af37] mb-2 self-start">
+                      <div className="inline-block px-2 py-1 rounded bg-[#1a0b05] border border-[#d4af37]/30 text-[10px] font-sans uppercase tracking-widest text-[#d4af37]/80 mb-2 self-start relative z-10">
                         {genre?.name}
                       </div>
                       {roomCode && (
-                        <div className="px-2 py-1 rounded-sm bg-[#d4af37]/10 border border-[#d4af37]/30 text-[11px] font-serif uppercase tracking-wider text-[#8b4513] dark:text-[#d4af37] mb-3">
+                        <div className="px-2 py-1 rounded bg-[#d4af37]/10 border border-[#d4af37]/30 text-[10px] font-sans uppercase tracking-widest text-[#d4af37] mb-3 self-start relative z-10">
                           Room: {roomCode}
                         </div>
                       )}
 
-                      <div className="mt-auto pt-4 flex flex-col gap-4">
-                        <div className="flex items-center justify-between text-xs text-[#5c4033] dark:text-[#d4af37]/70 font-serif border-t border-[#d4af37]/20 pt-3">
+                      <div className="mt-auto pt-4 flex flex-col gap-4 relative z-10">
+                        <div className="flex items-center justify-between text-xs text-[#d4af37]/50 font-serif border-t border-[#d4af37]/10 pt-3">
                           <span>Chapter {story.currentChoiceIndex + 1}</span>
                           <span>{new Date((story as any).createdAt || story.createdAt).toLocaleDateString()}</span>
                         </div>
 
                         <Link href={`/stories/multiplayer/room/${(roomCode || "").toUpperCase()}`}>
-                          <NeonButton glowColor="gold" className="w-full text-sm py-2">
-                            <DoorOpen className="w-4 h-4 mr-2" />
+                          <button className="w-full text-[10px] uppercase tracking-[0.2em] border border-[#d4af37]/30 bg-[#1a0b05] py-2 rounded hover:bg-[#d4af37] hover:text-[#1a0b05] transition-all font-sans font-bold flex items-center justify-center gap-2">
+                            <DoorOpen className="w-3 h-3" />
                             Rejoin Room
-                          </NeonButton>
+                          </button>
                         </Link>
                       </div>
-                    </StorytellerCard>
+                    </div>
                   </motion.div>
                 )
               })}

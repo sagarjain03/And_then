@@ -191,7 +191,7 @@ export default function MultiplayerStoryPlayPage() {
           setNewHostInfo(roomData.newHostNotification)
           setShowNewHostModal(true)
           lastSeenHostNotificationRef.current = notificationId
-          void fetch(`/api/multiplayer/rooms/${roomCode}/clear-host-notification`, { method: "POST" }).catch(() => {})
+          void fetch(`/api/multiplayer/rooms/${roomCode}/clear-host-notification`, { method: "POST" }).catch(() => { })
         }
       }
 
@@ -338,7 +338,7 @@ export default function MultiplayerStoryPlayPage() {
     audioRef.current = audio
 
     if (isMusicEnabled) {
-      void audio.play().catch(() => {})
+      void audio.play().catch(() => { })
     }
 
     return () => {
@@ -819,7 +819,7 @@ export default function MultiplayerStoryPlayPage() {
       <BookLayout
         genre={story.genre}
         currentPage={story.currentChoiceIndex}
-        onPageTurn={() => {}}
+        onPageTurn={() => { }}
         leftContent={
           <div className="flex flex-col h-full">
             <div className="flex items-center justify-between mb-6 border-b pb-4 border-black/10">
@@ -1146,10 +1146,10 @@ export default function MultiplayerStoryPlayPage() {
                     choiceFeedback.quality === "excellent"
                       ? "bg-emerald-100 text-emerald-800 border border-emerald-200"
                       : choiceFeedback.quality === "good"
-                      ? "bg-sky-100 text-sky-800 border border-sky-200"
-                      : choiceFeedback.quality === "average"
-                      ? "bg-amber-100 text-amber-800 border border-amber-200"
-                      : "bg-red-100 text-red-800 border border-red-200",
+                        ? "bg-sky-100 text-sky-800 border border-sky-200"
+                        : choiceFeedback.quality === "average"
+                          ? "bg-amber-100 text-amber-800 border border-amber-200"
+                          : "bg-red-100 text-red-800 border border-red-200",
                   )}
                 >
                   {choiceFeedback.message}
@@ -1235,17 +1235,17 @@ export default function MultiplayerStoryPlayPage() {
         }
       />
       <AlertDialog open={showHostTransferDialog} onOpenChange={setShowHostTransferDialog}>
-        <AlertDialogContent>
+        <AlertDialogContent className="bg-[#1a0b05] border border-[#d4af37] text-[#d4af37]">
           <AlertDialogHeader>
-            <AlertDialogTitle>Choose a new host</AlertDialogTitle>
-            <AlertDialogDescription>
+            <AlertDialogTitle className="font-serif font-bold text-[#d4af37] text-2xl uppercase tracking-widest">Choose a new host</AlertDialogTitle>
+            <AlertDialogDescription className="text-[#d4af37]/70 font-sans italic">
               Select which participant should take over host controls before you exit. You will continue as a regular player afterward.
             </AlertDialogDescription>
           </AlertDialogHeader>
           {hostTransferCandidates.length === 0 ? (
-            <p className="text-sm text-muted-foreground">No other participants are available to take host duties right now.</p>
+            <p className="text-sm text-[#d4af37]/50 font-serif italic">No other participants are available to take host duties right now.</p>
           ) : (
-            <div className="space-y-2">
+            <div className="space-y-2 max-h-[200px] overflow-y-auto pr-2 custom-scrollbar">
               {hostTransferCandidates.map((candidate) => {
                 const candidateId =
                   typeof candidate === "object" && (candidate as any)._id
@@ -1261,24 +1261,29 @@ export default function MultiplayerStoryPlayPage() {
                     key={candidateId}
                     onClick={() => setSelectedNewHost(candidateId)}
                     className={cn(
-                      "w-full text-left p-3 rounded-lg border transition-colors",
-                      isSelected ? "border-primary bg-primary/10" : "border-border hover:bg-muted/50",
+                      "w-full text-left p-3 rounded-lg border transition-colors font-sans",
+                      isSelected
+                        ? "border-[#d4af37] bg-[#d4af37]/20 text-[#d4af37]"
+                        : "border-[#d4af37]/30 hover:bg-[#d4af37]/10 text-[#d4af37]/80 hover:text-[#d4af37] hover:border-[#d4af37]/60",
                     )}
                   >
                     <div className="flex items-center justify-between">
-                      <span className="font-medium">{label}</span>
-                      {isSelected && <span className="text-xs text-primary font-semibold">Selected</span>}
+                      <span className="font-medium tracking-wide uppercase text-xs">{label}</span>
+                      {isSelected && <span className="text-[10px] text-[#d4af37] font-bold uppercase tracking-widest">Selected</span>}
                     </div>
                   </button>
                 )
               })}
             </div>
           )}
-          <AlertDialogFooter className="gap-2 mt-4">
-            <AlertDialogCancel disabled={isTransferringHost}>Cancel</AlertDialogCancel>
+          <AlertDialogFooter className="gap-3 sm:gap-4 mt-4">
+            <AlertDialogCancel disabled={isTransferringHost} className="bg-transparent border border-[#d4af37]/30 text-[#d4af37] hover:bg-[#d4af37]/10 hover:text-[#d4af37] uppercase tracking-widest text-xs font-bold rounded-lg h-auto py-3">
+              Cancel
+            </AlertDialogCancel>
             <AlertDialogAction
               disabled={isTransferringHost || !selectedNewHost || hostTransferCandidates.length === 0}
               onClick={() => void handleConfirmHostTransfer()}
+              className="min-w-[150px] bg-[#d4af37] text-[#1a0b05] hover:bg-[#f4e4bc] uppercase tracking-widest text-xs font-bold rounded-lg h-auto py-3"
             >
               {isTransferringHost ? (
                 <>
@@ -1293,22 +1298,24 @@ export default function MultiplayerStoryPlayPage() {
         </AlertDialogContent>
       </AlertDialog>
       <AlertDialog open={showExitDialog} onOpenChange={setShowExitDialog}>
-        <AlertDialogContent>
+        <AlertDialogContent className="bg-[#1a0b05] border border-[#d4af37] text-[#d4af37]">
           <AlertDialogHeader>
-            <AlertDialogTitle>Exit Room</AlertDialogTitle>
-            <AlertDialogDescription>
+            <AlertDialogTitle className="font-serif font-bold text-[#d4af37] text-2xl uppercase tracking-widest">Exit Room</AlertDialogTitle>
+            <AlertDialogDescription className="text-[#d4af37]/70 font-sans italic">
               Exit without saving to leave permanently, or save and exit to keep your copy and rejoin later. Remaining players continue from the current page.
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter className="gap-2">
-            <AlertDialogCancel disabled={isLeavingRoom || isSavingAndExiting}>Cancel</AlertDialogCancel>
+          <AlertDialogFooter className="gap-3 sm:gap-4">
+            <AlertDialogCancel disabled={isLeavingRoom || isSavingAndExiting} className="bg-transparent border border-[#d4af37]/30 text-[#d4af37] hover:bg-[#d4af37]/10 hover:text-[#d4af37] uppercase tracking-widest text-xs font-bold rounded-lg h-auto py-3">
+              Cancel
+            </AlertDialogCancel>
             <Tooltip>
               <TooltipTrigger asChild>
                 <span className="inline-flex">
                   <AlertDialogAction
                     disabled={isLeavingRoom || isSavingAndExiting}
                     onClick={() => void handleExit("exit")}
-                    className="min-w-[120px]"
+                    className="min-w-[120px] bg-transparent border border-red-500/30 text-red-500 hover:bg-red-950/30 hover:text-red-400 uppercase tracking-widest text-xs font-bold rounded-lg h-auto py-3"
                   >
                     {isLeavingRoom ? (
                       <>
@@ -1321,7 +1328,7 @@ export default function MultiplayerStoryPlayPage() {
                   </AlertDialogAction>
                 </span>
               </TooltipTrigger>
-              <TooltipContent side="top" className="max-w-[250px]">
+              <TooltipContent side="top" className="max-w-[250px] bg-[#2a1a10] border-[#d4af37]/30 text-[#d4af37]">
                 <p className="text-xs">
                   Leave immediately. The story will not be saved for you and you will not be able to rejoin this room.
                 </p>
@@ -1333,7 +1340,7 @@ export default function MultiplayerStoryPlayPage() {
                   <AlertDialogAction
                     disabled={isLeavingRoom || isSavingAndExiting}
                     onClick={() => void handleExit("save-exit")}
-                    className="bg-primary text-primary-foreground hover:bg-primary/90 min-w-[150px]"
+                    className="min-w-[150px] bg-[#d4af37] text-[#1a0b05] hover:bg-[#f4e4bc] uppercase tracking-widest text-xs font-bold rounded-lg h-auto py-3"
                   >
                     {isSavingAndExiting ? (
                       <>
@@ -1346,7 +1353,7 @@ export default function MultiplayerStoryPlayPage() {
                   </AlertDialogAction>
                 </span>
               </TooltipTrigger>
-              <TooltipContent side="top" className="max-w-[250px]">
+              <TooltipContent side="top" className="max-w-[250px] bg-[#2a1a10] border-[#d4af37]/30 text-[#d4af37]">
                 <p className="text-xs">
                   Save to your multiplayer library, exit the room, and rejoin later with voting rights restored.
                 </p>

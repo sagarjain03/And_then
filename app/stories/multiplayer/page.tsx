@@ -2,103 +2,108 @@
 
 import { motion } from "framer-motion"
 import Link from "next/link"
-import { StorytellerCard } from "@/components/ui/storyteller-card"
-import { NeonButton } from "@/components/ui/neon-button"
-import { Users, Lock, Globe, Feather, ArrowLeft } from "lucide-react"
+import { Users, Lock, Globe, ArrowLeft, Trophy, BookOpen, PenTool } from "lucide-react"
 
 export default function MultiplayerPage() {
   return (
-    <div className="min-h-screen bg-parchment text-[#2a1a10] relative overflow-hidden font-serif">
-      {/* Background Texture */}
-      <div className="fixed inset-0 pointer-events-none opacity-50 z-0 bg-[url('https://www.transparenttextures.com/patterns/aged-paper.png')]"></div>
+    <div className="min-h-screen bg-[#1a0b05] text-[#d4af37] relative overflow-hidden font-serif selection:bg-[#d4af37] selection:text-[#1a0b05]">
+      {/* Background Texture - Dark leather/grain style */}
+      <div
+        className="fixed inset-0 pointer-events-none opacity-20 z-0 bg-repeat"
+        style={{
+          backgroundImage: `url("https://www.transparenttextures.com/patterns/leather.png")`
+        }}
+      ></div>
 
-      {/* Decorative Book Binding Effect */}
-      <div className="hidden lg:block fixed left-0 top-0 bottom-0 w-16 bg-gradient-to-r from-[#2a1a10]/10 to-transparent pointer-events-none"></div>
+      {/* Spotlights */}
+      <div className="fixed top-0 left-1/2 -translate-x-1/2 w-full h-[500px] bg-gradient-to-b from-[#d4af37]/5 to-transparent pointer-events-none z-0 blur-3xl"></div>
 
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-32 relative z-10">
-        {/* Header */}
+      <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-12 relative z-10">
+
+        {/* Top Navigation */}
+        <header className="flex justify-between items-center mb-16">
+          <Link href="/dashboard" className="group">
+            <div className="flex items-center gap-2 text-[#d4af37]/80 group-hover:text-[#d4af37] transition-colors font-sans uppercase tracking-widest text-xs font-bold">
+              <div className="p-2 border border-[#d4af37]/30 rounded group-hover:bg-[#d4af37]/10 transition-colors">
+                <ArrowLeft className="w-4 h-4" />
+              </div>
+              <span>Close Book</span>
+            </div>
+          </Link>
+          
+        </header>
+
+        {/* Welcome Section */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-center mb-12"
+          className="flex flex-col md:flex-row justify-between items-start gap-8 mb-24"
         >
-          <motion.div
-            initial={{ scale: 0.8 }}
-            animate={{ scale: 1 }}
-            transition={{ delay: 0.2 }}
-            className="flex justify-center mb-6"
-          >
-            <div className="w-20 h-20 rounded-full bg-[#f4e4bc] flex items-center justify-center border-2 border-[#d4af37]/30 shadow-book">
-              <Users className="w-10 h-10 text-[#8b4513]" />
+          <div className="max-w-2xl">
+            <h1 className="text-5xl md:text-6xl font-bold mb-6 text-[#d4af37] font-serif tracking-tight drop-shadow-md">
+              The Fellowship
+            </h1>
+            <div className="border-l-2 border-[#d4af37]/40 pl-6 py-2">
+              <p className="text-lg text-[#d4af37]/80 italic font-serif leading-relaxed">
+                Weave tales together with friends or join public chroniclers.
+              </p>
             </div>
-          </motion.div>
-          <h1 className="text-4xl sm:text-5xl font-bold mb-4 text-[#2a1a10]">The Fellowship</h1>
-          <p className="text-xl text-[#5c4033] italic font-serif">
-            Weave tales together with friends or join public chroniclers.
-          </p>
+          </div>
+
+          {/* Level Block */}
+          
         </motion.div>
 
-        {/* Options Grid */}
-        <div className="grid md:grid-cols-2 gap-8 mb-12">
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.3 }}
-          >
-            <Link href="/stories/multiplayer/create" className="block h-full">
-              <StorytellerCard className="text-center h-full hover:shadow-book transition-all hover:scale-[1.02] border-light bg-white/80 cursor-pointer group">
-                <div className="w-16 h-16 rounded-full bg-[#f4e4bc] flex items-center justify-center mx-auto mb-6 border border-[#d4af37]/30 group-hover:bg-[#d4af37]/10 transition-colors">
-                  <Lock className="w-8 h-8 text-[#8b4513]" />
-                </div>
-                <h3 className="text-2xl font-bold mb-4 text-[#2a1a10] uppercase tracking-wide">Form a Coterie</h3>
-                <p className="text-sm text-[#5c4033] italic mb-6">
-                  Create a private room and invite friends to write together.
-                </p>
-                <NeonButton glowColor="gold" className="w-full pointer-events-none">
-                  Create Room
-                </NeonButton>
-              </StorytellerCard>
-            </Link>
-          </motion.div>
+        
 
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.4 }}
-          >
-            <Link href="/stories/multiplayer/join" className="block h-full">
-              <StorytellerCard className="text-center h-full hover:shadow-book transition-all hover:scale-[1.02] border-light bg-white/80 cursor-pointer group">
-                <div className="w-16 h-16 rounded-full bg-[#f4e4bc] flex items-center justify-center mx-auto mb-6 border border-[#d4af37]/30 group-hover:bg-[#d4af37]/10 transition-colors">
-                  <Globe className="w-8 h-8 text-[#8b4513]" />
+        
+
+        {/* Action Buttons (Redesigned as Blocky Cards) */}
+        <div className="grid md:grid-cols-2 gap-8">
+          <Link href="/stories/multiplayer/create" className="block h-full">
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.6 }}
+              className="bg-[#2a1a10] border border-[#d4af37]/30 rounded-xl p-8 hover:bg-[#3a2012] transition-all duration-300 group h-full relative overflow-hidden"
+            >
+              <div className="absolute inset-0 bg-gradient-to-br from-[#d4af37]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+              <div className="relative z-10 flex flex-col items-center text-center">
+                <div className="w-16 h-16 rounded-full border border-[#d4af37]/30 flex items-center justify-center mb-6 bg-[#1a0b05] group-hover:border-[#d4af37]/60 transition-colors">
+                  <Lock className="w-8 h-8 text-[#d4af37]" strokeWidth={1.5} />
                 </div>
-                <h3 className="text-2xl font-bold mb-4 text-[#2a1a10] uppercase tracking-wide">Join a Guild</h3>
-                <p className="text-sm text-[#5c4033] italic mb-6">
-                  Join an existing room and weave your threads into the story.
-                </p>
-                <NeonButton glowColor="gold" className="w-full bg-transparent border-[#d4af37]/50 text-[#8b4513] hover:bg-[#d4af37]/10 pointer-events-none">
+                <h3 className="text-2xl font-bold text-[#d4af37] mb-2 font-serif">Form a Coterie</h3>
+                <p className="text-[#d4af37]/60 text-sm mb-6 max-w-xs font-serif italic">create a private sanctuary for your writing circle</p>
+                <span className="inline-block mt-auto text-[10px] uppercase tracking-[0.2em] border border-[#d4af37]/30 px-6 py-3 rounded hover:bg-[#d4af37] hover:text-[#1a0b05] transition-all font-sans font-bold">
+                  Create Room
+                </span>
+              </div>
+            </motion.div>
+          </Link>
+
+          <Link href="/stories/multiplayer/join" className="block h-full">
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.7 }}
+              className="bg-[#2a1a10] border border-[#d4af37]/30 rounded-xl p-8 hover:bg-[#3a2012] transition-all duration-300 group h-full relative overflow-hidden"
+            >
+              <div className="absolute inset-0 bg-gradient-to-br from-[#d4af37]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+              <div className="relative z-10 flex flex-col items-center text-center">
+                <div className="w-16 h-16 rounded-full border border-[#d4af37]/30 flex items-center justify-center mb-6 bg-[#1a0b05] group-hover:border-[#d4af37]/60 transition-colors">
+                  <Globe className="w-8 h-8 text-[#d4af37]" strokeWidth={1.5} />
+                </div>
+                <h3 className="text-2xl font-bold text-[#d4af37] mb-2 font-serif">Join a Guild</h3>
+                <p className="text-[#d4af37]/60 text-sm mb-6 max-w-xs font-serif italic">find your fellowship in the public archives</p>
+                <span className="inline-block mt-auto text-[10px] uppercase tracking-[0.2em] border border-[#d4af37]/30 px-6 py-3 rounded hover:bg-[#d4af37] hover:text-[#1a0b05] transition-all font-sans font-bold">
                   Join Room
-                </NeonButton>
-              </StorytellerCard>
-            </Link>
-          </motion.div>
+                </span>
+              </div>
+            </motion.div>
+          </Link>
         </div>
 
-        {/* Back Button */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.5 }}
-          className="flex justify-center"
-        >
-          <Link href="/dashboard">
-            <button className="flex items-center gap-2 text-[#8b4513] hover:text-[#2a1a10] transition-colors font-serif font-bold uppercase tracking-wider text-sm px-6 py-3 border border-[#d4af37]/30 rounded-full hover:bg-[#d4af37]/10">
-              <ArrowLeft className="w-4 h-4" />
-              Return to Library
-            </button>
-          </Link>
-        </motion.div>
       </div>
     </div>
   )
 }
-
