@@ -816,10 +816,21 @@ export default function MultiplayerStoryPlayPage() {
 
   if (isLoading || !story || !room) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center">
-          <Loader2 className="w-12 h-12 text-primary mx-auto mb-4 animate-spin" />
-          <p className="text-muted-foreground">Loading story...</p>
+      <div className="min-h-screen bg-[#2a1a10] bg-[url('/themes/fantasy/background.png')] bg-cover bg-center bg-no-repeat bg-blend-multiply flex items-center justify-center relative overflow-hidden">
+        {/* Background Texture */}
+        <div
+          className="fixed inset-0 pointer-events-none opacity-20 z-0 bg-repeat"
+          style={{
+            backgroundImage: `url("https://www.transparenttextures.com/patterns/leather.png")`
+          }}
+        ></div>
+        
+        {/* Spotlights */}
+        <div className="fixed top-0 left-1/2 -translate-x-1/2 w-full h-[500px] bg-gradient-to-b from-[#d4af37]/10 to-transparent pointer-events-none z-0 blur-3xl"></div>
+        
+        <div className="text-center relative z-10">
+          <Loader2 className="w-12 h-12 text-[#d4af37] mx-auto mb-4 animate-spin" />
+          <p className="text-[#d4af37] font-serif italic text-lg">Opening the storybook...</p>
         </div>
       </div>
     )
@@ -912,8 +923,24 @@ export default function MultiplayerStoryPlayPage() {
         }
         rightContent={
           <div className="flex flex-col h-full justify-center">
-            {!isTyping && (
-              <div className="space-y-6">
+            {story?.isStoryComplete ? (
+              <div className="text-center space-y-4">
+                <p className={cn("text-2xl font-bold mb-4", theme.styles.heading)}>
+                  Story Complete!
+                </p>
+                <p className={cn("text-sm opacity-70 mb-6", theme.styles.text)}>
+                  Your collaborative journey has reached its conclusion.
+                </p>
+                <Button
+                  onClick={() => router.push(`/stories/complete/${storyId}`)}
+                  className={cn("mt-4", theme.styles.choice)}
+                >
+                  View Complete Story & Download PDF
+                </Button>
+              </div>
+            ) : (
+              !isTyping && (
+                <div className="space-y-6">
                 {!isTieBreakerVoting && (
                   <p
                     className={cn(
@@ -1137,7 +1164,8 @@ export default function MultiplayerStoryPlayPage() {
                     </p>
                   </div>
                 )}
-              </div>
+                </div>
+              )
             )}
 
             {isProcessing && (

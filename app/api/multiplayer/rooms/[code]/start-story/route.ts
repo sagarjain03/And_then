@@ -143,6 +143,15 @@ export async function POST(
       personalityTraits,
       isStoryComplete: storyData.isStoryComplete ?? false,
       choiceHistory: [],
+      fullStoryContent: [
+        {
+          chapterIndex: 0,
+          content: storyData.content,
+          choices: storyData.choices,
+        },
+      ],
+      isMultiplayer: true,
+      roomCode: room.roomCode,
     })
 
     room.selectedGenre = selectedGenre

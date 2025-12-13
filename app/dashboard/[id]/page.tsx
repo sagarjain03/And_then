@@ -363,15 +363,32 @@ export default function DashboardPage() {
 
                       <div className="mt-auto pt-4 flex flex-col gap-4 relative z-10">
                         <div className="flex items-center justify-between text-xs text-[#d4af37]/50 font-serif border-t border-[#d4af37]/10 pt-3">
-                          <span>Chapter {story.currentChoiceIndex + 1}</span>
-                          <span>{new Date(story.createdAt).toLocaleDateString()}</span>
+                          <span>
+                            {story.isStoryComplete 
+                              ? "Completed" 
+                              : `Chapter ${story.currentChoiceIndex + 1}`}
+                          </span>
+                          <span>{new Date((story as any).createdAt || story.createdAt).toLocaleDateString()}</span>
                         </div>
 
-                        <Link href={`/stories/play/${(story as any)._id || story.id}`} onClick={() => handlePlayStory(story)}>
-                          <button className="w-full text-[10px] uppercase tracking-[0.2em] border border-[#d4af37]/30 bg-[#1a0b05] py-2 rounded hover:bg-[#d4af37] hover:text-[#1a0b05] transition-all font-sans font-bold">
-                            Continue Tale
-                          </button>
-                        </Link>
+                        {story.isStoryComplete ? (
+                          <div className="flex flex-col gap-2">
+                            <div className="text-[10px] uppercase tracking-[0.2em] text-center text-[#d4af37]/70 font-sans mb-1">
+                              Story Completed
+                            </div>
+                            <Link href={`/stories/complete/${(story as any)._id || story.id}`}>
+                              <button className="w-full text-[10px] uppercase tracking-[0.2em] border border-[#d4af37]/30 bg-[#1a0b05] py-2 rounded hover:bg-[#d4af37] hover:text-[#1a0b05] transition-all font-sans font-bold">
+                                View & Download PDF
+                              </button>
+                            </Link>
+                          </div>
+                        ) : (
+                          <Link href={`/stories/play/${(story as any)._id || story.id}`} onClick={() => handlePlayStory(story)}>
+                            <button className="w-full text-[10px] uppercase tracking-[0.2em] border border-[#d4af37]/30 bg-[#1a0b05] py-2 rounded hover:bg-[#d4af37] hover:text-[#1a0b05] transition-all font-sans font-bold">
+                              Continue Tale
+                            </button>
+                          </Link>
+                        )}
                       </div>
                     </div>
                   </motion.div>
@@ -449,16 +466,33 @@ export default function DashboardPage() {
 
                       <div className="mt-auto pt-4 flex flex-col gap-4 relative z-10">
                         <div className="flex items-center justify-between text-xs text-[#d4af37]/50 font-serif border-t border-[#d4af37]/10 pt-3">
-                          <span>Chapter {story.currentChoiceIndex + 1}</span>
+                          <span>
+                            {story.isStoryComplete 
+                              ? "Completed" 
+                              : `Chapter ${story.currentChoiceIndex + 1}`}
+                          </span>
                           <span>{new Date((story as any).createdAt || story.createdAt).toLocaleDateString()}</span>
                         </div>
 
-                        <Link href={`/stories/multiplayer/room/${(roomCode || "").toUpperCase()}`}>
-                          <button className="w-full text-[10px] uppercase tracking-[0.2em] border border-[#d4af37]/30 bg-[#1a0b05] py-2 rounded hover:bg-[#d4af37] hover:text-[#1a0b05] transition-all font-sans font-bold flex items-center justify-center gap-2">
-                            <DoorOpen className="w-3 h-3" />
-                            Rejoin Room
-                          </button>
-                        </Link>
+                        {story.isStoryComplete ? (
+                          <div className="flex flex-col gap-2">
+                            <div className="text-[10px] uppercase tracking-[0.2em] text-center text-[#d4af37]/70 font-sans mb-1">
+                              Story Completed
+                            </div>
+                            <Link href={`/stories/complete/${(story as any)._id || story.id}`}>
+                              <button className="w-full text-[10px] uppercase tracking-[0.2em] border border-[#d4af37]/30 bg-[#1a0b05] py-2 rounded hover:bg-[#d4af37] hover:text-[#1a0b05] transition-all font-sans font-bold">
+                                View & Download PDF
+                              </button>
+                            </Link>
+                          </div>
+                        ) : (
+                          <Link href={`/stories/multiplayer/room/${(roomCode || "").toUpperCase()}`}>
+                            <button className="w-full text-[10px] uppercase tracking-[0.2em] border border-[#d4af37]/30 bg-[#1a0b05] py-2 rounded hover:bg-[#d4af37] hover:text-[#1a0b05] transition-all font-sans font-bold flex items-center justify-center gap-2">
+                              <DoorOpen className="w-3 h-3" />
+                              Rejoin Room
+                            </button>
+                          </Link>
+                        )}
                       </div>
                     </div>
                   </motion.div>

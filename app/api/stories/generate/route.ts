@@ -19,7 +19,7 @@ const StoryTurnSchema = z.object({
         text: z.string(),
       }),
     )
-    .min(1)
+    .min(0) // Allow empty choices when story is complete
     .max(4),
   lastChoiceEvaluation: z
     .object({
@@ -54,6 +54,9 @@ export async function POST(request: NextRequest) {
 
     const body = (await request.json()) as GenerateBody
     const { genreId, personalityTraits, character, previousContent, lastChoice, choiceHistory = [], isMultiplayer = false } = body
+    
+    // For single player stories, enforce completion at 10 chapters
+    const isSinglePlayer = !isMultiplayer
 
     const genre = getGenreById(genreId)
     if (!genre) {
@@ -68,9 +71,18 @@ export async function POST(request: NextRequest) {
       .map((entry) => `Step ${entry.segmentIndex + 1}: choice ${entry.choiceId}${entry.quality ? ` (${entry.quality})` : ""}`)
       .join("; ")
 
-    const maxChapters = 100
+    // Enforce 10 chapter limit for all stories (both single player and multiplayer)
+    const maxChapters = 10
     const chaptersSoFar = choiceHistory.length
-    const chaptersRemaining = Math.max(0, maxChapters - chaptersSoFar)
+    const currentChapter = chaptersSoFar + 1 // Current chapter being generated (1-indexed)
+    const chaptersRemaining = Math.max(0, maxChapters - currentChapter)
+    
+    // Force completion if we're at or past the max chapters
+    // chaptersSoFar = 0 means we're generating chapter 1 (initial story)
+    // chaptersSoFar = 8 means we're generating chapter 9 (within limit)
+    // chaptersSoFar = 9 means we're generating chapter 10 (last allowed chapter)
+    // chaptersSoFar >= 9 means we should force complete (we're at chapter 10 or beyond)
+    const shouldForceComplete = chaptersSoFar >= maxChapters - 1 || currentChapter >= maxChapters
 
     const qualityCounts = {
       excellent: 0,
@@ -125,10 +137,16 @@ Language and style:
 - Keep the tone engaging and easy to follow.
 
 Story length and pacing rules:
-- The entire story must finish in at most 20 chapters/turns.
-- You are now writing chapter number ${chaptersSoFar + 1}.
-- There are ${chaptersRemaining} chapters left before the hard limit of ${maxChapters}.
-- If there are no chapters left, or the story is near a natural ending, you MUST set isStoryComplete = true and write a clear ending.
+- This story MUST complete WITHIN ${maxChapters} chapters (can complete earlier if natural).
+- You are now writing chapter number ${currentChapter} of a maximum ${maxChapters} chapters.
+- There are ${chaptersRemaining} chapters remaining before the hard limit.
+- CRITICAL: ${shouldForceComplete 
+    ? `This is chapter ${currentChapter}, which is AT OR BEYOND the maximum of ${maxChapters} chapters. You MUST set isStoryComplete = true and write a definitive, satisfying ending that concludes the entire story. Wrap up all plot threads and provide closure. This is the FINAL chapter - do not continue the story.`
+    : `This is chapter ${currentChapter}. You can either:
+  a) Continue the story (set isStoryComplete = false) if there's more narrative to explore, OR
+  b) Complete the story naturally (set isStoryComplete = true) if it feels like a good ending point.
+- However, you MUST ensure the story completes by chapter ${maxChapters} at the latest. Pace accordingly.`}
+- The story MUST reach a conclusion by chapter ${maxChapters} at the absolute latest, regardless of user choices.
 
 Moral tone and endings:
 - Choice quality summary so far: ${qualitySummary}.
@@ -142,7 +160,8 @@ About this step's content:
 - Later risky or climactic choices should push toward a satisfying conclusion that respects the rules above.
 
 About choices:
-- After the new story content, imagine 2-4 meaningful next decisions the avatar could take.
+- If isStoryComplete is true, you MUST return an empty choices array [].
+- If isStoryComplete is false, after the new story content, imagine 2-4 meaningful next decisions the avatar could take.
 - Write each choice in simple English, with one clear action.
 - These choices must significantly shape the future tone, risk, or direction of the story.
 - Do NOT include the choices in the story text itself; only list them in the JSON "choices" field.
@@ -161,20 +180,32 @@ Return ONLY a JSON object matching the provided schema (no extra commentary, no 
 
     const turn = StoryTurnSchema.parse(object)
 
-    const choices: StoryChoice[] = turn.choices.map((c) => ({
-      id: c.id,
-      text: c.text,
-    }))
+    // Force completion if we've reached the limit
+    const finalIsComplete = shouldForceComplete ? true : turn.isStoryComplete
+
+    // If story is complete, provide empty choices array or a single "The End" choice
+    const choices: StoryChoice[] = finalIsComplete 
+      ? [] // No choices when story is complete
+      : turn.choices.map((c) => ({
+          id: c.id,
+          text: c.text,
+        }))
 
     return NextResponse.json({
       content: turn.content,
       choices,
-      isStoryComplete: turn.isStoryComplete,
+      isStoryComplete: finalIsComplete,
       lastChoiceEvaluation: turn.lastChoiceEvaluation,
     })
   } catch (error) {
     console.error("Story generation error:", error)
-    return NextResponse.json({ error: "Failed to generate story" }, { status: 500 })
+    const errorMessage = error instanceof Error ? error.message : "Unknown error"
+    const errorStack = error instanceof Error ? error.stack : undefined
+    console.error("Error details:", { errorMessage, errorStack, body: { genreId, chaptersSoFar, isMultiplayer } })
+    return NextResponse.json({ 
+      error: "Failed to generate story",
+      details: process.env.NODE_ENV === "development" ? errorMessage : undefined
+    }, { status: 500 })
   }
 }
 

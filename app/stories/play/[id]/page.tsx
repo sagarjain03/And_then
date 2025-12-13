@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import { type Story, STORY_GENRES } from "@/lib/story-data"
 import { BookLayout } from "@/components/book-layout"
 import { BOOK_THEMES, DEFAULT_THEME } from "@/lib/book-themes"
-import { ChevronLeft, Loader2, Volume2, Save } from "lucide-react"
+import { ChevronLeft, Loader2, Volume2, Save, X } from "lucide-react"
 import { toast } from "sonner"
 import { cn } from "@/lib/utils"
 
@@ -64,6 +64,16 @@ export default function StoryPlayPage() {
         }
         const data = await res.json()
         const loadedStory = data.story as Story
+        // Initialize fullStoryContent if it doesn't exist (for older stories)
+        if (!loadedStory.fullStoryContent && loadedStory.content) {
+          loadedStory.fullStoryContent = [
+            {
+              chapterIndex: 0,
+              content: loadedStory.content,
+              choices: loadedStory.choices || [],
+            },
+          ]
+        }
         setStory(loadedStory as any)
         setDisplayedContent(loadedStory.content)
       } catch (err) {
@@ -156,8 +166,21 @@ export default function StoryPlayPage() {
 
   const handleChoice = async (choiceIndex: number) => {
     if (!story || !storyId) return
+    
+    // Prevent making choices if story is already complete
+    if (story.isStoryComplete) {
+      router.push(`/stories/complete/${storyId}`)
+      return
+    }
 
     const selectedChoice = story.choices[choiceIndex]
+    
+    // Check if we've reached the chapter limit for single player stories
+    const chaptersSoFar = (story.choiceHistory ?? []).length
+    if (!story.isMultiplayer && chaptersSoFar >= 9) {
+      // We're at chapter 10, force completion on next generation
+      toast.info("This is the final chapter of your story!")
+    }
 
     setIsGeneratingNext(true)
     try {
@@ -177,9 +200,31 @@ export default function StoryPlayPage() {
         }),
       })
 
-      if (!response.ok) throw new Error("Failed to generate next part")
+      if (!response.ok) {
+        const errorText = await response.text()
+        console.error("API Error:", response.status, errorText)
+        throw new Error(`Failed to generate next part: ${response.status} ${errorText}`)
+      }
 
       const data = await response.json()
+      
+      // Check if story should be forced to complete (reached 10 chapters)
+      const chaptersSoFar = (story.choiceHistory ?? []).length
+      if (!story.isMultiplayer && chaptersSoFar >= 9) {
+        // Force completion at chapter 10
+        data.isStoryComplete = true
+      }
+
+      // Accumulate full story content
+      const currentChapter = {
+        chapterIndex: story.currentChoiceIndex,
+        content: story.content,
+        choices: story.choices,
+        selectedChoice: {
+          id: selectedChoice.id,
+          text: selectedChoice.text,
+        },
+      }
 
       const updatedStory: Story = {
         ...story,
@@ -194,6 +239,10 @@ export default function StoryPlayPage() {
             choiceId: selectedChoice.id,
             quality: data.lastChoiceEvaluation?.quality,
           },
+        ],
+        fullStoryContent: [
+          ...(story.fullStoryContent ?? []),
+          currentChapter,
         ],
       }
 
@@ -216,6 +265,28 @@ export default function StoryPlayPage() {
       }
 
       if (updatedStory.isStoryComplete) {
+        // Add final chapter to full story content
+        const finalChapter = {
+          chapterIndex: updatedStory.currentChoiceIndex,
+          content: data.content,
+          choices: data.choices,
+        }
+        updatedStory.fullStoryContent = [
+          ...(updatedStory.fullStoryContent ?? []),
+          finalChapter,
+        ]
+
+        // Save final story state
+        try {
+          await fetch("/api/stories/save", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ story: { ...updatedStory, id: storyId } }),
+          })
+        } catch (err) {
+          console.error("Failed to save final story", err)
+        }
+
         setTimeout(() => {
           router.push(`/stories/complete/${storyId}`)
         }, 1500)
@@ -252,10 +323,21 @@ export default function StoryPlayPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center">
-          <Loader2 className="w-12 h-12 text-primary mx-auto mb-4 animate-spin" />
-          <p className="text-muted-foreground">Opening your story...</p>
+      <div className="min-h-screen bg-[#2a1a10] bg-[url('/themes/fantasy/background.png')] bg-cover bg-center bg-no-repeat bg-blend-multiply flex items-center justify-center relative overflow-hidden">
+        {/* Background Texture */}
+        <div
+          className="fixed inset-0 pointer-events-none opacity-20 z-0 bg-repeat"
+          style={{
+            backgroundImage: `url("https://www.transparenttextures.com/patterns/leather.png")`
+          }}
+        ></div>
+        
+        {/* Spotlights */}
+        <div className="fixed top-0 left-1/2 -translate-x-1/2 w-full h-[500px] bg-gradient-to-b from-[#d4af37]/10 to-transparent pointer-events-none z-0 blur-3xl"></div>
+        
+        <div className="text-center relative z-10">
+          <Loader2 className="w-12 h-12 text-[#d4af37] mx-auto mb-4 animate-spin" />
+          <p className="text-[#d4af37] font-serif italic text-lg">Opening your story...</p>
         </div>
       </div>
     )
@@ -344,29 +426,50 @@ export default function StoryPlayPage() {
       }
       rightContent={
         <div className="flex flex-col h-full justify-center">
-          {!isTyping && (
+          {story.isStoryComplete ? (
+            <div className="text-center space-y-4">
+              <p className={cn("text-2xl font-bold mb-4", theme.styles.heading)}>
+                Story Complete!
+              </p>
+              <p className={cn("text-sm opacity-70 mb-6", theme.styles.text)}>
+                Your journey has reached its conclusion.
+              </p>
+              <Button
+                onClick={() => router.push(`/stories/complete/${storyId}`)}
+                className={cn("mt-4", theme.styles.choice)}
+              >
+                View Complete Story & Download PDF
+              </Button>
+            </div>
+          ) : !isTyping && (
             <div className="space-y-6">
               <p className={cn("text-sm font-bold opacity-70 mb-4 uppercase tracking-widest text-center", theme.styles.text)}>
                 What happens next?
               </p>
 
-              {story.choices.map((choice, index) => (
-                <button
-                  key={choice.id}
-                  onClick={() => handleChoice(index)}
-                  disabled={isGeneratingNext}
-                  className={cn(
-                    "w-full text-left p-6 rounded-lg border-2 transition-all duration-200 transform hover:-translate-y-1 hover:shadow-md active:translate-y-0 group",
-                    theme.styles.choice,
-                    theme.styles.text
-                  )}
-                >
-                  <div className="flex items-start gap-4">
-                    <span className="font-bold opacity-50 text-xl group-hover:opacity-100 transition-opacity">{index + 1}.</span>
-                    <span className="text-lg">{choice.text}</span>
-                  </div>
-                </button>
-              ))}
+              {story.choices && story.choices.length > 0 ? (
+                story.choices.map((choice, index) => (
+                  <button
+                    key={choice.id}
+                    onClick={() => handleChoice(index)}
+                    disabled={isGeneratingNext}
+                    className={cn(
+                      "w-full text-left p-6 rounded-lg border-2 transition-all duration-200 transform hover:-translate-y-1 hover:shadow-md active:translate-y-0 group",
+                      theme.styles.choice,
+                      theme.styles.text
+                    )}
+                  >
+                    <div className="flex items-start gap-4">
+                      <span className="font-bold opacity-50 text-xl group-hover:opacity-100 transition-opacity">{index + 1}.</span>
+                      <span className="text-lg">{choice.text}</span>
+                    </div>
+                  </button>
+                ))
+              ) : (
+                <p className={cn("text-sm opacity-70 text-center", theme.styles.text)}>
+                  Loading choices...
+                </p>
+              )}
             </div>
           )}
 
@@ -382,15 +485,22 @@ export default function StoryPlayPage() {
 
           {/* Feedback Toast (Centered on screen or right page) */}
           {choiceFeedback && (
-            <div className="absolute bottom-8 left-0 right-0 flex justify-center pointer-events-none">
+            <div className="absolute bottom-8 left-0 right-0 flex justify-center z-20">
               <div className={cn(
-                "px-4 py-2 rounded-full text-sm font-bold shadow-lg animate-in fade-in slide-in-from-bottom-4",
+                "px-4 py-2 pr-8 rounded-full text-sm font-bold shadow-lg animate-in fade-in slide-in-from-bottom-4 relative",
                 choiceFeedback.quality === "excellent" ? "bg-emerald-100 text-emerald-800 border border-emerald-200" :
                   choiceFeedback.quality === "good" ? "bg-sky-100 text-sky-800 border border-sky-200" :
                     choiceFeedback.quality === "average" ? "bg-amber-100 text-amber-800 border border-amber-200" :
                       "bg-red-100 text-red-800 border border-red-200"
               )}>
                 {choiceFeedback.message}
+                <button
+                  onClick={() => setChoiceFeedback(null)}
+                  className="absolute top-1/2 right-2 -translate-y-1/2 p-1 rounded-full hover:bg-black/10 transition-colors"
+                  aria-label="Dismiss feedback"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
               </div>
             </div>
           )}

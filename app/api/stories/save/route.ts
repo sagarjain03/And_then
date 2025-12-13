@@ -42,6 +42,7 @@ export async function POST(request: NextRequest) {
       character: story.character,
       isStoryComplete: story.isStoryComplete ?? false,
       choiceHistory: story.choiceHistory ?? [],
+      fullStoryContent: story.fullStoryContent ?? [],
       isMultiplayer: isMultiplayer || false,
       roomCode: roomCode,
       savedAt: new Date(),
@@ -50,7 +51,7 @@ export async function POST(request: NextRequest) {
     const storyId: string | undefined = story.id || story._id
 
     if (isMultiplayer) {
-      const userPayload = { ...basePayload, userId, isMultiplayer: true }
+      const userPayload = { ...basePayload, userId, isMultiplayer: true, roomCode: roomCode }
 
       let doc
       if (roomCode) {

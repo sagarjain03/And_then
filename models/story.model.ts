@@ -31,6 +31,23 @@ const StorySchema = new Schema(
         quality: String,
       },
     ],
+    // Full story content with all chapters and choices
+    fullStoryContent: [
+      {
+        chapterIndex: Number,
+        content: String,
+        choices: [
+          {
+            id: String,
+            text: String,
+          },
+        ],
+        selectedChoice: {
+          id: String,
+          text: String,
+        },
+      },
+    ],
     isMultiplayer: { type: Boolean, default: false },
     // Room association enables dashboards to surface a Rejoin link
     roomCode: { type: String, default: null },
