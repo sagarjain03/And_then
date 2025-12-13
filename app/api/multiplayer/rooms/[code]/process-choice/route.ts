@@ -17,8 +17,15 @@ export async function POST(
     const { code } = await params
     const roomCode = code.toUpperCase()
 
-    const body = await request.json().catch(() => ({}))
-    const { selectedChoiceId } = body
+    // Handle empty request body gracefully
+    let body = {}
+    try {
+      body = await request.json()
+    } catch (error) {
+      console.log("No JSON body provided or invalid JSON")
+    }
+    
+    const { selectedChoiceId } = body as { selectedChoiceId?: string }
 
     await connectDB()
 
@@ -45,35 +52,77 @@ export async function POST(
       return NextResponse.json({ error: "Story not found" }, { status: 404 })
     }
 
+    // Check if room is already processing
+    if (room.isProcessing) {
+      return NextResponse.json({ 
+        error: "Room is already processing choices",
+        isProcessing: true 
+      }, { status: 400 })
+    }
+
+    // Check if we have any choiceVotes at all
     if (!room.choiceVotes || room.choiceVotes.size === 0) {
-      return NextResponse.json({ error: "No votes recorded" }, { status: 400 })
+      return NextResponse.json({ 
+        error: "No votes recorded",
+        hasVotes: false 
+      }, { status: 400 })
     }
 
     const isTieBreakerMode = room.tiedChoicesForVoting && room.tiedChoicesForVoting.length > 0
 
+    // Calculate total participants properly
     const hostIdString = room.hostId.toString()
     const hostInParticipants = room.participants.some((p: any) => {
       const pId = typeof p === "object" && p._id ? p._id.toString() : p.toString()
       return pId === hostIdString
     })
-    const totalParticipants =
-      room.participants.length + (room.hostActive !== false && !hostInParticipants ? 1 : 0)
-    const uniqueVoters = new Set<string>()
+    
+    // IMPORTANT FIX: Only count active participants
+    const activeParticipants = room.participants.filter((p: any) => {
+      if (typeof p === 'object') {
+        return p.isActive !== false && p.leftAt === undefined
+      }
+      return true // If it's just an ID, assume active
+    }).length
+    
+    // Count host only if they are active and not already in participants
+    const totalActivePlayers = activeParticipants + 
+      (room.hostActive !== false && !hostInParticipants ? 1 : 0)
 
-    const choicesToCount = isTieBreakerMode ? room.tiedChoicesForVoting : Array.from(room.choiceVotes.keys())
+    // Count unique voters from choiceVotes
+    const uniqueVoters = new Set<string>()
+    const choicesToCount = isTieBreakerMode 
+      ? (room.tiedChoicesForVoting || [])
+      : Array.from(room.choiceVotes.keys())
+
+    // If no choices to count (edge case)
+    if (choicesToCount.length === 0) {
+      room.choiceVotes = new Map()
+      room.tiedChoicesForVoting = []
+      await room.save()
+      return NextResponse.json({ 
+        error: "No valid choices to process",
+        resetVotes: true 
+      }, { status: 400 })
+    }
 
     choicesToCount.forEach((choiceId: string) => {
       const userIds = room.choiceVotes.get(choiceId) || []
       userIds.forEach((id: any) => uniqueVoters.add(id.toString()))
     })
 
-    if (!selectedChoiceId && uniqueVoters.size < totalParticipants) {
+    // FIX: Don't require all participants to vote if host is selecting in tie-breaker
+    const isHostSelectingInTieBreaker = selectedChoiceId && isTieBreakerMode
+    
+    if (!isHostSelectingInTieBreaker && uniqueVoters.size < totalActivePlayers) {
       return NextResponse.json(
         {
-          error: "All participants must vote before processing",
-          participants: totalParticipants,
+          error: "Waiting for all players to vote",
+          participants: totalActivePlayers,
           voters: uniqueVoters.size,
           isTieBreakerMode,
+          ready: false,
+          missingVotes: totalActivePlayers - uniqueVoters.size
         },
         { status: 400 },
       )
@@ -83,6 +132,7 @@ export async function POST(
     let winningChoiceId: string | null = null
     const choiceVoteCounts: Array<{ choiceId: string; votes: number }> = []
 
+    // Count votes for each choice
     choicesToCount.forEach((choiceId: string) => {
       const userIds = room.choiceVotes.get(choiceId) || []
       const voteCount = userIds.length
@@ -95,20 +145,37 @@ export async function POST(
       }
     })
 
+    // Handle case where no one voted (shouldn't happen but for safety)
+    if (choiceVoteCounts.length === 0) {
+      room.choiceVotes = new Map()
+      room.tiedChoicesForVoting = []
+      await room.save()
+      return NextResponse.json({ 
+        error: "No votes found for any choice",
+        resetVotes: true 
+      }, { status: 400 })
+    }
+
     const tiedChoices = choiceVoteCounts.filter((c) => c.votes === maxVotes && c.votes > 0)
     const tiedChoiceIds = tiedChoices.map((c) => c.choiceId)
 
+    // Handle tie (first occurrence)
     if (tiedChoices.length > 1 && !isTieBreakerMode && !selectedChoiceId) {
       room.tiedChoicesForVoting = tiedChoiceIds
+      
+      // Clear votes for non-tied choices
       const allChoiceIds = Array.from(room.choiceVotes.keys())
       allChoiceIds.forEach((choiceId: string) => {
         if (!tiedChoiceIds.includes(choiceId)) {
           room.choiceVotes.delete(choiceId)
         }
       })
+      
+      // Also clear votes for tied choices to start fresh
       tiedChoiceIds.forEach((choiceId: string) => {
         room.choiceVotes.delete(choiceId)
       })
+      
       await room.save()
 
       return NextResponse.json({
@@ -116,9 +183,11 @@ export async function POST(
         tiedChoices: tiedChoiceIds,
         isTieBreakerVoting: true,
         message: "Tie detected. All players will vote again on the tied choices.",
+        requireNewVotes: true
       })
     }
 
+    // Handle persistent tie after re-voting
     if (tiedChoices.length > 1 && isTieBreakerMode && !selectedChoiceId) {
       return NextResponse.json({
         hasTie: true,
@@ -129,10 +198,18 @@ export async function POST(
       })
     }
 
+    // Handle host selection for tie-breaker
     if (selectedChoiceId) {
-      const validChoices = isTieBreakerMode ? room.tiedChoicesForVoting : tiedChoiceIds
+      const validChoices = isTieBreakerMode 
+        ? (room.tiedChoicesForVoting || [])
+        : tiedChoiceIds
+      
       if (!validChoices.includes(selectedChoiceId)) {
-        return NextResponse.json({ error: "Selected choice is not one of the tied choices" }, { status: 400 })
+        return NextResponse.json({ 
+          error: "Selected choice is not one of the tied choices",
+          validChoices,
+          selectedChoiceId 
+        }, { status: 400 })
       }
       winningChoiceId = selectedChoiceId
     } else if (tiedChoices.length === 1) {
@@ -140,18 +217,31 @@ export async function POST(
     }
 
     if (!winningChoiceId) {
-      return NextResponse.json({ error: "Could not determine winning choice" }, { status: 400 })
+      return NextResponse.json({ 
+        error: "Could not determine winning choice",
+        choiceVoteCounts,
+        maxVotes,
+        tiedChoices 
+      }, { status: 400 })
     }
 
+    // Find the winning choice in the story
     const winningChoice = story.choices.find((c: any) => c.id === winningChoiceId)
     if (!winningChoice) {
-      return NextResponse.json({ error: "Winning choice not found in story" }, { status: 400 })
+      console.error(`Winning choice ${winningChoiceId} not found in story choices:`, story.choices.map((c: any) => c.id))
+      return NextResponse.json({ 
+        error: "Winning choice not found in story",
+        choiceId: winningChoiceId,
+        availableChoices: story.choices.map((c: any) => ({ id: c.id, text: c.text }))
+      }, { status: 400 })
     }
 
+    // Set processing flag
     room.isProcessing = true
     room.lastChoiceEvaluation = { quality: null, message: null }
     await room.save()
 
+    // Generate next story part
     const host = request.headers.get("host") || "localhost:3000"
     const protocol = request.headers.get("x-forwarded-proto") || "http"
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || `${protocol}://${host}`
@@ -175,14 +265,19 @@ export async function POST(
     if (!generateResponse.ok) {
       room.isProcessing = false
       await room.save()
-      throw new Error("Failed to generate next part")
+      
+      const errorText = await generateResponse.text()
+      console.error("Generate API error:", errorText)
+      
+      throw new Error(`Failed to generate next part: ${generateResponse.status} ${errorText}`)
     }
 
     const storyData = await generateResponse.json()
 
+    // Update story
     story.content = storyData.content
     story.choices = storyData.choices
-    story.currentChoiceIndex = story.currentChoiceIndex + 1
+    story.currentChoiceIndex = (story.currentChoiceIndex || 0) + 1
     story.isStoryComplete = storyData.isStoryComplete ?? story.isStoryComplete
     story.choiceHistory = [
       ...(story.choiceHistory || []),
@@ -195,10 +290,12 @@ export async function POST(
 
     await story.save()
 
+    // Reset room for next round
     room.choiceVotes = new Map()
     room.tiedChoicesForVoting = []
     room.currentChoiceIndex = story.currentChoiceIndex
     room.isProcessing = false
+    
     if (storyData.lastChoiceEvaluation) {
       room.lastChoiceEvaluation = {
         quality: storyData.lastChoiceEvaluation.quality,
@@ -207,11 +304,17 @@ export async function POST(
     } else {
       room.lastChoiceEvaluation = { quality: null, message: null }
     }
+    
+    // Handle story completion
     if (story.isStoryComplete) {
       room.status = "completed"
 
-      const allUsers = [room.hostId.toString(), ...room.participants.map((p: any) => p.toString())]
-      const uniqueUsers = [...new Set(allUsers)]
+      // Save story for all participants
+      const allUsers = [room.hostId.toString(), ...room.participants.map((p: any) => {
+        if (typeof p === 'object') return p._id?.toString() || p.toString()
+        return p.toString()
+      })]
+      const uniqueUsers = [...new Set(allUsers.filter(Boolean))]
 
       const storyPayload = {
         title: story.title,
@@ -227,7 +330,8 @@ export async function POST(
         roomCode: room.roomCode,
       }
 
-      Promise.all(
+      // Use Promise.allSettled to prevent blocking on individual errors
+      await Promise.allSettled(
         uniqueUsers.map(async (targetUserId: string) => {
           try {
             const existing = await Story.findOne({
@@ -251,15 +355,14 @@ export async function POST(
           } catch (error) {
             console.error(`Error saving story for user ${targetUserId}:`, error)
           }
-        }),
-      ).catch((error) => {
-        console.error("Error saving stories for users:", error)
-      })
+        })
+      )
     }
+    
     await room.save()
 
     return NextResponse.json({
-      message: "Choice processed",
+      message: "Choice processed successfully",
       story: {
         content: story.content,
         choices: story.choices,
@@ -268,11 +371,19 @@ export async function POST(
       },
       lastChoiceEvaluation: storyData.lastChoiceEvaluation,
       hasTie: false,
+      winningChoice: {
+        id: winningChoice.id,
+        text: winningChoice.text,
+      }
     })
   } catch (error) {
     console.error("Process choice error:", error)
+    
+    // Attempt to reset processing flag
     try {
-      const room = await Room.findOne({ roomCode: (await params).code.toUpperCase() })
+      const { code } = await params
+      const roomCode = code.toUpperCase()
+      const room = await Room.findOne({ roomCode })
       if (room) {
         room.isProcessing = false
         await room.save()
@@ -280,7 +391,10 @@ export async function POST(
     } catch (saveError) {
       console.error("Error resetting processing flag:", saveError)
     }
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 })
+    
+    return NextResponse.json({ 
+      error: "Internal server error",
+      message: error instanceof Error ? error.message : "Unknown error"
+    }, { status: 500 })
   }
 }
-
