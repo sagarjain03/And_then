@@ -23,6 +23,16 @@ export interface StoryChoiceHistoryEntry {
   quality?: ChoiceQuality
 }
 
+export interface FullStoryChapter {
+  chapterIndex: number
+  content: string
+  choices: StoryChoice[]
+  selectedChoice?: {
+    id: string
+    text: string
+  }
+}
+
 export interface Story {
   id: string
   title: string
@@ -35,6 +45,7 @@ export interface Story {
   createdAt: Date
   isStoryComplete?: boolean
   choiceHistory?: StoryChoiceHistoryEntry[]
+  fullStoryContent?: FullStoryChapter[]
   // Multiplayer extras
   isMultiplayer?: boolean
   roomCode?: string | null
