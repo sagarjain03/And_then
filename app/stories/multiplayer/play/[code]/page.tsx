@@ -6,7 +6,7 @@ import { motion } from "framer-motion"
 import { BookLayout } from "@/components/book-layout"
 import { BOOK_THEMES, DEFAULT_THEME } from "@/lib/book-themes"
 import { type Story } from "@/lib/story-data"
-import { ChevronLeft, Loader2, Volume2, Users, Save, LogOut } from "lucide-react"
+import { ChevronLeft, Loader2, Volume2, Users, Save, LogOut, X } from "lucide-react"
 import { toast } from "sonner"
 import { cn } from "@/lib/utils"
 import Link from "next/link"
@@ -108,6 +108,7 @@ export default function MultiplayerStoryPlayPage() {
   const previousChoiceIndexRef = useRef<number>(-1)
   const previousProcessingStateRef = useRef<boolean>(false)
   const lastSeenHostNotificationRef = useRef<string | null>(null)
+  const dismissedFeedbackRef = useRef<string | null>(null)
 
   const theme = story ? BOOK_THEMES[story.genre] || DEFAULT_THEME : DEFAULT_THEME
 
@@ -157,14 +158,22 @@ export default function MultiplayerStoryPlayPage() {
         roomData.lastChoiceEvaluation.quality &&
         roomData.lastChoiceEvaluation.message
       ) {
-        setChoiceFeedback({
-          quality: roomData.lastChoiceEvaluation.quality as "excellent" | "good" | "average" | "bad",
-          message: roomData.lastChoiceEvaluation.message,
-        })
+        // Create a unique identifier for this feedback
+        const feedbackId = `${roomData.lastChoiceEvaluation.quality}-${roomData.lastChoiceEvaluation.message}`
+        
+        // Only set feedback if it hasn't been manually dismissed
+        if (dismissedFeedbackRef.current !== feedbackId) {
+          setChoiceFeedback({
+            quality: roomData.lastChoiceEvaluation.quality as "excellent" | "good" | "average" | "bad",
+            message: roomData.lastChoiceEvaluation.message,
+          })
+        }
       } else if (
         !roomData.lastChoiceEvaluation ||
         (roomData.lastChoiceEvaluation.quality === null && roomData.lastChoiceEvaluation.message === null)
       ) {
+        // Clear dismissed feedback ref when evaluation is cleared
+        dismissedFeedbackRef.current = null
         setChoiceFeedback(null)
       }
 
@@ -224,6 +233,8 @@ export default function MultiplayerStoryPlayPage() {
                 if (processingJustCompleted || hasPageChanged || isInitialLoad) {
                   setDisplayedContent("")
                   autoProcessRef.current = false
+                  // Reset dismissed feedback when page changes so new feedback can be shown
+                  dismissedFeedbackRef.current = null
                 }
 
                 setIsLoading(false)
@@ -1139,10 +1150,10 @@ export default function MultiplayerStoryPlayPage() {
             )}
 
             {choiceFeedback && (
-              <div className="absolute bottom-8 left-0 right-0 flex justify-center pointer-events-none z-20">
+              <div className="absolute bottom-8 left-0 right-0 flex justify-center z-20">
                 <div
                   className={cn(
-                    "px-4 py-2 rounded-full text-sm font-bold shadow-lg animate-in fade-in slide-in-from-bottom-4",
+                    "px-4 py-2 pr-8 rounded-full text-sm font-bold shadow-lg animate-in fade-in slide-in-from-bottom-4 relative",
                     choiceFeedback.quality === "excellent"
                       ? "bg-emerald-100 text-emerald-800 border border-emerald-200"
                       : choiceFeedback.quality === "good"
@@ -1153,84 +1164,85 @@ export default function MultiplayerStoryPlayPage() {
                   )}
                 >
                   {choiceFeedback.message}
+                  <button
+                    onClick={() => {
+                      // Mark this feedback as dismissed
+                      const feedbackId = `${choiceFeedback.quality}-${choiceFeedback.message}`
+                      dismissedFeedbackRef.current = feedbackId
+                      setChoiceFeedback(null)
+                    }}
+                    className="absolute top-1/2 right-2 -translate-y-1/2 p-1 rounded-full hover:bg-black/10 transition-colors"
+                    aria-label="Dismiss feedback"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
                 </div>
               </div>
             )}
 
-            {showHostTieModal && isHost && tiedChoices.length > 0 && (
-              <div className="fixed inset-0 z-30 flex items-center justify-center bg-black/60 backdrop-blur-md animate-in fade-in duration-200">
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.95, y: 10 }}
-                  animate={{ opacity: 1, scale: 1, y: 0 }}
-                  transition={{ duration: 0.2 }}
-                  className="bg-white dark:bg-neutral-900 rounded-2xl shadow-2xl max-w-2xl w-full mx-4 border border-primary/20"
-                >
-                  <div className="p-6 border-b border-primary/10 bg-gradient-to-r from-primary/5 to-primary/10">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
-                        <Users className="w-5 h-5 text-primary" />
-                      </div>
-                      <div>
-                        <h3 className="text-xl font-display font-bold text-foreground">Tie Detected Again</h3>
-                        <p className="text-sm text-foreground/70 mt-0.5">Select the final choice to continue the story</p>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="p-6 space-y-3 max-h-96 overflow-y-auto">
-                    {tiedChoices.map((choiceId) => {
-                      const choice = story.choices.find((c) => c.id === choiceId)
-                      if (!choice) return null
-                      const votes = room.choiceVotes[choice.id] || []
-                      const voterUsernames = getUsernamesForVotes(votes)
-                      return (
-                        <motion.button
-                          key={choiceId}
-                          onClick={() => {
-                            setShowHostTieModal(false)
-                            void handleProcessChoice(choiceId)
-                          }}
-                          whileHover={{ scale: 1.02 }}
-                          whileTap={{ scale: 0.98 }}
-                          className={cn(
-                            "w-full text-left p-5 rounded-xl border-2 transition-all duration-200",
-                            theme.styles.choice,
-                            theme.styles.text,
-                            "ring-2 ring-primary hover:ring-primary/80 hover:shadow-lg",
-                          )}
-                        >
-                          <div className="flex items-start gap-3 mb-3">
-                            <span className="font-bold text-lg opacity-70">{story.choices.indexOf(choice) + 1}.</span>
-                            <span className="text-base flex-1 font-medium leading-relaxed">{choice.text}</span>
-                          </div>
-                          {votes.length > 0 && (
-                            <div className="mt-3 pt-3 border-t border-primary/20">
-                              <div className="text-xs font-semibold text-primary/80 mb-2 uppercase tracking-wider">
-                                Voted by ({votes.length}):
-                              </div>
-                              <div className="flex flex-wrap gap-2">
-                                {voterUsernames.map((username, idx) => (
-                                  <span
-                                    key={idx}
-                                    className="inline-flex items-center px-3 py-1 rounded-lg bg-primary/15 text-xs font-display text-primary border border-primary/30"
-                                  >
-                                    {username}
-                                  </span>
-                                ))}
-                              </div>
+            <AlertDialog open={showHostTieModal} onOpenChange={setShowHostTieModal}>
+              <AlertDialogContent className="bg-[#1a0b05] border border-[#d4af37] text-[#d4af37] max-w-2xl">
+                <AlertDialogHeader>
+                  <AlertDialogTitle className="font-serif font-bold text-[#d4af37] text-2xl uppercase tracking-widest">
+                    Tie Detected Again
+                  </AlertDialogTitle>
+                  <AlertDialogDescription className="text-[#d4af37]/70 font-sans italic">
+                    The choices are still tied after the second vote. As the host, select the final choice to continue the story.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <div className="space-y-3 max-h-96 overflow-y-auto pr-2 custom-scrollbar">
+                  {tiedChoices.map((choiceId) => {
+                    const choice = story.choices.find((c) => c.id === choiceId)
+                    if (!choice) return null
+                    const votes = room.choiceVotes[choice.id] || []
+                    const voterUsernames = getUsernamesForVotes(votes)
+                    return (
+                      <button
+                        key={choiceId}
+                        onClick={() => {
+                          setShowHostTieModal(false)
+                          void handleProcessChoice(choiceId)
+                        }}
+                        className={cn(
+                          "w-full text-left p-4 rounded-lg border transition-colors font-sans",
+                          "border-[#d4af37]/30 hover:bg-[#d4af37]/10 text-[#d4af37]/80 hover:text-[#d4af37] hover:border-[#d4af37]/60",
+                        )}
+                      >
+                        <div className="flex items-start gap-3 mb-2">
+                          <span className="font-bold text-lg opacity-70">{story.choices.indexOf(choice) + 1}.</span>
+                          <span className="text-base flex-1 font-medium leading-relaxed">{choice.text}</span>
+                        </div>
+                        {votes.length > 0 && (
+                          <div className="mt-3 pt-3 border-t border-[#d4af37]/20">
+                            <div className="text-xs font-semibold text-[#d4af37]/80 mb-2 uppercase tracking-wider">
+                              Voted by ({votes.length}):
                             </div>
-                          )}
-                        </motion.button>
-                      )
-                    })}
-                  </div>
-                  <div className="p-4 border-t border-primary/10 bg-neutral-50/50 dark:bg-neutral-800/50 flex justify-end">
-                    <Button variant="ghost" size="sm" onClick={() => setShowHostTieModal(false)} className="hover:bg-primary/10">
-                      Cancel
-                    </Button>
-                  </div>
-                </motion.div>
-              </div>
-            )}
+                            <div className="flex flex-wrap gap-2">
+                              {voterUsernames.map((username, idx) => (
+                                <span
+                                  key={idx}
+                                  className="inline-flex items-center px-2 py-1 rounded-md bg-[#d4af37]/15 text-xs font-display text-[#d4af37] border border-[#d4af37]/30"
+                                >
+                                  {username}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </button>
+                    )
+                  })}
+                </div>
+                <AlertDialogFooter className="gap-3 sm:gap-4 mt-4">
+                  <AlertDialogCancel
+                    onClick={() => setShowHostTieModal(false)}
+                    className="bg-transparent border border-[#d4af37]/30 text-[#d4af37] hover:bg-[#d4af37]/10 hover:text-[#d4af37] uppercase tracking-widest text-xs font-bold rounded-lg h-auto py-3"
+                  >
+                    Cancel
+                  </AlertDialogCancel>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           </div>
         }
       />
