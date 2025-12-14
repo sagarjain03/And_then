@@ -181,6 +181,14 @@ export default function NewStoryPage() {
         character: personalityResult.character,
         isStoryComplete: data.isStoryComplete ?? false,
         choiceHistory: [],
+        fullStoryContent: [
+          {
+            chapterIndex: 0,
+            content: data.content,
+            choices: data.choices,
+          },
+        ],
+        isMultiplayer: false,
       }
 
       // Persist initial story state to MongoDB and redirect to play view for that story

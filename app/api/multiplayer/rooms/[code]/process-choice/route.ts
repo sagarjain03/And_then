@@ -274,6 +274,17 @@ export async function POST(
 
     const storyData = await generateResponse.json()
 
+    // Accumulate full story content
+    const currentChapter = {
+      chapterIndex: story.currentChoiceIndex || 0,
+      content: story.content,
+      choices: story.choices || [],
+      selectedChoice: {
+        id: winningChoice.id,
+        text: winningChoice.text,
+      },
+    }
+
     // Update story
     story.content = storyData.content
     story.choices = storyData.choices
@@ -286,6 +297,10 @@ export async function POST(
         choiceId: winningChoice.id,
         quality: storyData.lastChoiceEvaluation?.quality,
       },
+    ]
+    story.fullStoryContent = [
+      ...(story.fullStoryContent || []),
+      currentChapter,
     ]
 
     await story.save()
@@ -309,6 +324,18 @@ export async function POST(
     if (story.isStoryComplete) {
       room.status = "completed"
 
+      // Add final chapter to full story content
+      const finalChapter = {
+        chapterIndex: story.currentChoiceIndex,
+        content: storyData.content,
+        choices: storyData.choices || [],
+      }
+      story.fullStoryContent = [
+        ...(story.fullStoryContent || []),
+        finalChapter,
+      ]
+      await story.save()
+
       // Save story for all participants
       const allUsers = [room.hostId.toString(), ...room.participants.map((p: any) => {
         if (typeof p === 'object') return p._id?.toString() || p.toString()
@@ -326,6 +353,7 @@ export async function POST(
         character: story.character,
         isStoryComplete: story.isStoryComplete,
         choiceHistory: story.choiceHistory || [],
+        fullStoryContent: story.fullStoryContent || [],
         isMultiplayer: true,
         roomCode: room.roomCode,
       }
